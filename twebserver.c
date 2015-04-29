@@ -25,7 +25,7 @@ int main ( int argc, char *argv[] )
 {
 	int opt;
 	int port = NULL;
-	const char* usage = "Usage: run -p [port] path/root/";
+	const char* usage = "Usage: ./twebserver -p [port] path/root/";
     while ((opt = getopt(argc, argv, "hp:")) != -1)
     {
         switch (opt)
