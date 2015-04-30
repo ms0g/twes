@@ -123,7 +123,7 @@ void init_server(int port, const char* path){
 }
 
 
-void reuse(int socket){
+inline void reuse(int socket){
 	int reuse = 1;
 	if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(int)) == -1)
 		error("Can't set the reuse option on the socket");
