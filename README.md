@@ -9,6 +9,6 @@ for help
 <pre>./twebserver -h</pre>
 
 ### TODO
-Serve static contents images..etc
+Serve static contents such as images..etc
 
 
