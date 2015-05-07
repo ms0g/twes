@@ -8,4 +8,7 @@ to clean binary and obj files
 for help
 <pre>./twebserver -h</pre>
 
+### TODO
+Serve static contents images..etc
+
 
