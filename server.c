@@ -47,7 +47,7 @@ void response(int socket, const char* path, char* buf){
 	
 	len = lseek(file, (off_t)0, SEEK_END);
 	lseek(file, (off_t)0, SEEK_SET);
-	sprintf(buf,"HTTP/1.1 200 OK\nServer: tinyweb/1.0\nContent-Length: %ld\nContent-Type: text/html\n\n", len);
+	sprintf(buf,"HTTP/1.1 200 OK\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: text/html\n\n", len);
 	write(socket, buf, strlen(buf));
 	while ((ret = read(file, buf, len)) > 0) {
 		write(socket, buf, ret);
