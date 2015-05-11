@@ -8,7 +8,7 @@ LFLAGS = -Wall $(DEBUG)
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) $< 
 
-twebserver: $(OBJS)
+twebserv: $(OBJS)
 	$(CC) $(LFLAGS) $^ -o $@
 
 clean:
