@@ -1,4 +1,4 @@
-OBJS = twebserver.o server.o
+OBJS = twebserv.o server.o
 CC = gcc
 DEBUG = -g
 DEPS = server.h
@@ -12,4 +12,4 @@ twebserv: $(OBJS)
 	$(CC) $(LFLAGS) $^ -o $@
 
 clean:
-	rm -f *.o twebserver
+	rm -f *.o twebserv
