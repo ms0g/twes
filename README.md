@@ -9,6 +9,6 @@ for help
 <pre>./twebserv -h</pre>
 
 ### TODO
-* Serve static contents such as images..etc
+* Process dynamic contents like PHPs.
 * Add the other methods HEAD,POST,PUT,DELETE.
 
