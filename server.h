@@ -8,10 +8,11 @@
 #include <signal.h>
 #include <fcntl.h>
 
+#define BUFLEN 8096
 
 void handle_shutdown(int sig);
 void error(char* msg);
-void read_in(int socket, char* buf);
+void read_in(int socket, char* buf,int len);
 int open_listener_socket(void);
 void bind_to_port(int socket, int port);
 int catch_signal(int sig, void (*handler)(int));

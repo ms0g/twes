@@ -1,7 +1,7 @@
-OBJS = twebserv.o server.o
+OBJS = twebserv.o server.o utils.o
 CC = gcc
 DEBUG = -g
-DEPS = server.h
+DEPS = server.h utils.h
 CFLAGS = -Wall -c $(DEBUG)
 LFLAGS = -Wall $(DEBUG)
 

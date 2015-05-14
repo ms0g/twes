@@ -17,6 +17,7 @@
  */
 
 #include "server.h"
+#include "utils.h"
 
 void error(char* msg){
 	fprintf(stderr, "%s: %s\n", msg, strerror(errno));
@@ -24,33 +25,45 @@ void error(char* msg){
 }		
 
 
-void read_in(int socket, char* buf){
-	
-	int c  =recv(socket, buf, sizeof(buf), 0);
+void read_in(int socket, char* buf, int len){
+	int c  = recv(socket, buf, len, 0);
 	if(c == 0 || c == -1)
 		error("failed to read browser request");
-	
-	if(strncmp(buf,"GET ",4) && strncmp(buf,"get ",4))
-		error("Only simple GET operation permitted");
 }
 
 
 void response(int socket, const char* path, char* buf){
 	int file;
-	long ret,len;
+	long len;
+	char method[BUFLEN];
+	char request_path[BUFLEN];
+	char protocol[BUFLEN];	
+
+	sscanf(buf,"%s %s %s", method, request_path, protocol);
 	
+	if(strncmp(method,"GET",4) && strncmp(method,"get",4))
+		error("Only simple GET operation permitted");	
+	
+	if(!strcmp(request_path,"/"))
+		strcpy(request_path,"/index.html");
+
 	if(chdir(path) == -1) 
 		error("Can't Change to directory");
-		
-	if((file = open("index.html", O_RDONLY)) == -1) 
+	
+	const char* ext = get_filename_ext(&request_path[1]);
+	const char* mime = lookup(ext);
+			
+	if((file = open(&request_path[1], O_RDONLY)) == -1) 
 		error("failed to open file");
 	
 	len = lseek(file, (off_t)0, SEEK_END);
 	lseek(file, (off_t)0, SEEK_SET);
-	sprintf(buf,"HTTP/1.1 200 OK\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: text/html\n\n", len);
+	
+	sprintf(buf,"%s 200 OK\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: %s\n\n",protocol, len, mime);
 	write(socket, buf, strlen(buf));
-	while ((ret = read(file, buf, len)) > 0) {
-		write(socket, buf, ret);
+	
+	while (read(file, buf, BUFLEN) > 0) {
+		write(socket, buf, BUFLEN);
 	}
 }
 
@@ -66,10 +79,10 @@ int open_listener_socket(void){
 void bind_to_port(int socket, int port){
 	struct sockaddr_in name;
 	name.sin_family = PF_INET;
-	name.sin_port = (in_port_t)htons(port);
+	name.sin_port = htons(port);
 	name.sin_addr.s_addr = htonl(INADDR_ANY);
 	reuse(socket);
-	int c = bind (socket, (struct sockaddr *) &name, sizeof(name));
+	int c = bind (socket, (struct sockaddr *)&name, sizeof(name));
 	if (c == -1)
 		error("Can't bind to socket");
 }	
@@ -102,10 +115,10 @@ void init_server(int port, const char* path){
 	if (listen(listener_d, 10) == -1)
 		error("Can't listen");
 	
-	struct sockaddr_storage client_addr;	
+	struct sockaddr_in client_addr;	
 	unsigned int address_size = sizeof(client_addr);
 	
-	char buf[255];
+	char* buf = malloc(BUFLEN);
 	puts("Listening");
 	
 	while(1){
@@ -114,9 +127,10 @@ void init_server(int port, const char* path){
 			error("Can’t open secondary socket");
 		if(!fork()){
 			close(listener_d);
-			read_in(connect_d, buf);
+			read_in(connect_d, buf, BUFLEN);
 			response(connect_d, path, buf);
 			close(connect_d);
+			free(buf);
 			exit(0);
 		}
 	}
