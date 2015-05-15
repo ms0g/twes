@@ -118,7 +118,7 @@ void init_server(int port, const char* path){
 	struct sockaddr_in client_addr;	
 	unsigned int address_size = sizeof(client_addr);
 	
-	char* buf = malloc(BUFLEN);
+	char* buf = (char*)malloc(BUFLEN);
 	puts("Listening");
 	
 	while(1){
