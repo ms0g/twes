@@ -41,7 +41,7 @@ void response(int socket, const char* path, char* buf){
 
 	sscanf(buf,"%s %s %s", method, request_path, protocol);
 	
-	if(strncmp(method,"GET",4) && strncmp(method,"get",4))
+	if(strcmp(method,"GET"))
 		error("Only simple GET operation permitted");	
 	
 	if(!strcmp(request_path,"/"))
