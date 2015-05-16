@@ -20,6 +20,10 @@
 #include "utils.h"
 
 
+const char* error404 = "<html><body><h1>404 Not Found</h1></body></html>";
+const char* error500 = "<html><body><h1>500 Internal Server Error</h1></body></html>";
+
+
 char* http_state(char* protocol,char* state,long len,const char* mime,char* buf){	
 	sprintf(buf,"%s %s\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: %s\n\n",protocol, state, len, mime);
 	return buf;
@@ -32,13 +36,13 @@ void http_parse(int socket,char* buf, request* req){
 	char protocol[BUFLEN];	
 	
 	sscanf(buf,"%s %s %s", method, path, protocol);
-	strcpy(req->method,method);
-	strcpy(req->path,path);
-	strcpy(req->protocol,protocol);
+	strcpy(req->method, method);
+	strcpy(req->path, path);
+	strcpy(req->protocol, protocol);
 
-	if(strcmp(req->method,"GET")){
-		buf = http_state(req->protocol,"405 Method Not Allowed",0,"text/html",buf);	
-		write(socket,buf,sizeof(buf));
+	if(strcmp(req->method, "GET")){
+		buf = http_state(req->protocol,"405 Method Not Allowed", 0,"text/html", buf);	
+		write(socket, buf, strlen(buf));
 	}
 	
 	if(!strcmp(req->path,"/"))
@@ -50,14 +54,20 @@ void http_response(int socket, const char* path, char* buf, request* req){
 	int file;
 	long len;
 	
-	if(chdir(path) == -1)
-		buf = http_state(req->protocol,"500 Internal Server Error",0,"text/html",buf);
+	if(chdir(path) == -1){
+		buf = http_state(req->protocol,"500 Internal Server Error",strlen(error500),"text/html",buf);
+		write(socket, buf, strlen(buf));
+		write(socket, error500,strlen(error500));
+	}
 	else{
 		const char* ext = get_filename_ext(&(req->path[1]));
 		const char* mime = lookup(ext);
 
-		if((file = open(&(req->path[1]), O_RDONLY)) == -1) 
-			buf = http_state(req->protocol,"404 Not Found", 0, mime, buf);
+		if((file = open(&(req->path[1]), O_RDONLY)) == -1){ 
+			buf = http_state(req->protocol,"404 Not Found", strlen(error404), mime, buf);
+			write(socket, buf, strlen(buf));
+			write(socket,error404, strlen(error404));
+		}
 		else{
 			len = lseek(file, (off_t)0, SEEK_END);
 			lseek(file, (off_t)0, SEEK_SET);
@@ -68,6 +78,5 @@ void http_response(int socket, const char* path, char* buf, request* req){
 				write(socket, buf, BUFLEN);
 		}
 	}
-	write(socket, buf, strlen(buf));
 }
 

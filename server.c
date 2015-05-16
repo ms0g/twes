@@ -84,6 +84,7 @@ void init_server(int port, const char* path){
 	
 	char* buf = (char*)malloc(BUFLEN);
 	request* req =(request*)malloc(sizeof(request));
+
 	puts("Listening");
 	
 	while(1){
