@@ -16,7 +16,7 @@ typedef struct{
 
 }request;
 
-char* http_state(char* protocol, char* state, long len, const char* mime, char* buf);
+char* http_header(char* protocol, char* state, long len, const char* mime, char* buf);
 void http_parse(int socket, char* buf, request* req);
 void http_response(int socket, const char* path, char* buf, request* req);
 
