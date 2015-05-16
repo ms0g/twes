@@ -19,7 +19,6 @@ void bind_to_port(int socket, int port);
 int catch_signal(int sig, void (*handler)(int));
 void init_server(int port, const char* path);
 void reuse(int socket);
-void response(int socket, const char* path, char* buf);
 
 #endif
 
