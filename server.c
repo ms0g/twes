@@ -17,54 +17,17 @@
  */
 
 #include "server.h"
-#include "utils.h"
+#include "http.h"
 
 void error(char* msg){
 	fprintf(stderr, "%s: %s\n", msg, strerror(errno));
 	exit(1);
 }		
 
-
 void read_in(int socket, char* buf, int len){
 	int c  = recv(socket, buf, len, 0);
 	if(c == 0 || c == -1)
 		error("failed to read browser request");
-}
-
-
-void response(int socket, const char* path, char* buf){
-	int file;
-	long len;
-	char method[BUFLEN];
-	char request_path[BUFLEN];
-	char protocol[BUFLEN];	
-
-	sscanf(buf,"%s %s %s", method, request_path, protocol);
-	
-	if(strcmp(method,"GET"))
-		error("Only simple GET operation permitted");	
-	
-	if(!strcmp(request_path,"/"))
-		strcpy(request_path,"/index.html");
-
-	if(chdir(path) == -1) 
-		error("Can't Change to directory");
-	
-	const char* ext = get_filename_ext(&request_path[1]);
-	const char* mime = lookup(ext);
-			
-	if((file = open(&request_path[1], O_RDONLY)) == -1) 
-		error("failed to open file");
-	
-	len = lseek(file, (off_t)0, SEEK_END);
-	lseek(file, (off_t)0, SEEK_SET);
-	
-	sprintf(buf,"%s 200 OK\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: %s\n\n",protocol, len, mime);
-	write(socket, buf, strlen(buf));
-	
-	while (read(file, buf, BUFLEN) > 0) {
-		write(socket, buf, BUFLEN);
-	}
 }
 
 
@@ -119,6 +82,7 @@ void init_server(int port, const char* path){
 	unsigned int address_size = sizeof(client_addr);
 	
 	char* buf = (char*)malloc(BUFLEN);
+	request* req =(request*)malloc(sizeof(request));
 	puts("Listening");
 	
 	while(1){
@@ -128,7 +92,8 @@ void init_server(int port, const char* path){
 		if(!fork()){
 			close(listener_d);
 			read_in(connect_d, buf, BUFLEN);
-			response(connect_d, path, buf);
+			http_parse(connect_d,buf,req);
+			http_response(connect_d, path, buf, req);
 			close(connect_d);
 			free(buf);
 			exit(0);

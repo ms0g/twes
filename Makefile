@@ -1,9 +1,10 @@
-OBJS = twebserv.o server.o utils.o
+OBJS = twebserv.o server.o utils.o http.o
 CC = gcc
 DEBUG = -g
-DEPS = server.h utils.h
-CFLAGS = -Wall -c $(DEBUG)
-LFLAGS = -Wall $(DEBUG)
+IDIR = include
+DEPS = server.h utils.h http.h
+CFLAGS = -I$(IDIR) -Wall -c $(DEBUG)
+LFLAGS = -I$(IDIR) -Wall $(DEBUG)
 
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) $< 
