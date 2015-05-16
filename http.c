@@ -22,6 +22,7 @@
 
 const char* error404 = "<html><body><h1>404 Not Found</h1></body></html>";
 const char* error500 = "<html><body><h1>500 Internal Server Error</h1></body></html>";
+const char* error405 = "<html><body><h1>405 Method Not Allowed</h1></body></html>";
 
 
 char* http_state(char* protocol,char* state,long len,const char* mime,char* buf){	
@@ -41,8 +42,9 @@ void http_parse(int socket,char* buf, request* req){
 	strcpy(req->protocol, protocol);
 
 	if(strcmp(req->method, "GET")){
-		buf = http_state(req->protocol,"405 Method Not Allowed", 0,"text/html", buf);	
+		buf = http_state(req->protocol,"405 Method Not Allowed", strlen(error405),"text/html", buf);	
 		write(socket, buf, strlen(buf));
+        write(socket, error405, strlen(error405));
 	}
 	
 	if(!strcmp(req->path,"/"))
