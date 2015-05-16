@@ -19,6 +19,7 @@
 #include "server.h"
 #include "http.h"
 
+
 void error(char* msg){
 	fprintf(stderr, "%s: %s\n", msg, strerror(errno));
 	exit(1);
@@ -96,6 +97,7 @@ void init_server(int port, const char* path){
 			http_response(connect_d, path, buf, req);
 			close(connect_d);
 			free(buf);
+			free(req);
 			exit(0);
 		}
 	}

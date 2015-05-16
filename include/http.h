@@ -6,8 +6,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#endif
-
 #define BUFLEN 8096
 
 typedef struct{
@@ -20,3 +18,5 @@ typedef struct{
 char* http_state(char* protocol, char* state, long len, const char* mime, char* buf);
 void http_parse(int socket, char* buf, request* req);
 void http_response(int socket, const char* path, char* buf, request* req);
+
+#endif

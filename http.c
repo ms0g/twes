@@ -1,3 +1,21 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  http.c
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  05/16/2015 10:05:38 PM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  @gurpinars, 
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+
 #include "http.h"
 #include "utils.h"
 
@@ -5,8 +23,9 @@
 char* http_state(char* protocol,char* state,long len,const char* mime,char* buf){	
 	sprintf(buf,"%s %s\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: %s\n\n",protocol, state, len, mime);
 	return buf;
-
 }
+
+
 void http_parse(int socket,char* buf, request* req){
 	char method[BUFLEN];
 	char path[BUFLEN];
@@ -24,8 +43,6 @@ void http_parse(int socket,char* buf, request* req){
 	
 	if(!strcmp(req->path,"/"))
 		strcpy(req->path,"/index.html");
-
-
 }
 
 	

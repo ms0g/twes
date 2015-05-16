@@ -1,5 +1,22 @@
+/*
+ * =====================================================================================
+ *
+ *       Filename:  utils.c
+ *
+ *    Description:  
+ *
+ *        Version:  1.0
+ *        Created:  05/16/2015 10:04:48 PM
+ *       Revision:  none
+ *       Compiler:  gcc
+ *
+ *         Author:  @gurpinars, 
+ *   Organization:  
+ *
+ * =====================================================================================
+ */
+
 #include "utils.h"
-#include <string.h>
 
 
 const char* get_filename_ext(char* filename) {
