@@ -25,7 +25,7 @@ const char* error500 = "<html><body><h1>500 Internal Server Error</h1></body></h
 const char* error405 = "<html><body><h1>405 Method Not Allowed</h1></body></html>";
 
 
-char* http_state(char* protocol,char* state,long len,const char* mime,char* buf){	
+char* http_header(char* protocol,char* state,long len,const char* mime,char* buf){	
 	sprintf(buf,"%s %s\nServer: twebserv/1.0\nContent-Length: %ld\nContent-Type: %s\n\n",protocol, state, len, mime);
 	return buf;
 }
