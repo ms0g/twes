@@ -42,7 +42,7 @@ void http_parse(int socket,char* buf, request* req){
 	strcpy(req->protocol, protocol);
 
 	if(strcmp(req->method, "GET")){
-		buf = http_state(req->protocol,"405 Method Not Allowed", strlen(error405),"text/html", buf);	
+		buf = http_header(req->protocol,"405 Method Not Allowed", strlen(error405),"text/html", buf);	
 		write(socket, buf, strlen(buf));
         write(socket, error405, strlen(error405));
 	}
@@ -57,7 +57,7 @@ void http_response(int socket, const char* path, char* buf, request* req){
 	long len;
 	
 	if(chdir(path) == -1){
-		buf = http_state(req->protocol,"500 Internal Server Error",strlen(error500),"text/html",buf);
+		buf = http_header(req->protocol,"500 Internal Server Error",strlen(error500),"text/html",buf);
 		write(socket, buf, strlen(buf));
 		write(socket, error500,strlen(error500));
 	}
@@ -66,14 +66,14 @@ void http_response(int socket, const char* path, char* buf, request* req){
 		const char* mime = lookup(ext);
 
 		if((file = open(&(req->path[1]), O_RDONLY)) == -1){ 
-			buf = http_state(req->protocol,"404 Not Found", strlen(error404), mime, buf);
+			buf = http_header(req->protocol,"404 Not Found", strlen(error404), mime, buf);
 			write(socket, buf, strlen(buf));
 			write(socket,error404, strlen(error404));
 		}
 		else{
 			len = lseek(file, (off_t)0, SEEK_END);
 			lseek(file, (off_t)0, SEEK_SET);
-			buf = http_state(req->protocol,"200 OK", len, mime,buf);
+			buf = http_header(req->protocol,"200 OK", len, mime,buf);
 			write(socket, buf, strlen(buf));
 
 			while (read(file, buf, BUFLEN) > 0)
