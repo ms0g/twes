@@ -46,7 +46,7 @@ void bind_to_port(int socket, int port){
 	name.sin_port = htons(port);
 	name.sin_addr.s_addr = htonl(INADDR_ANY);
 	reuse(socket);
-	int c = bind (socket, (struct sockaddr *)&name, sizeof(name));
+	int c = bind(socket, (struct sockaddr *)&name, sizeof(name));
 	if (c == -1)
 		error("Can't bind to socket");
 }	
@@ -74,8 +74,10 @@ void init_server(int port, const char* path){
 
 	if (catch_signal(SIGINT, handle_shutdown) == -1)
 		error("Can't set the interrupt handler");
+	
 	listener_d = open_listener_socket();
 	bind_to_port(listener_d, port);
+	
 	if (listen(listener_d, 10) == -1)
 		error("Can't listen");
 	

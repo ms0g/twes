@@ -30,7 +30,7 @@ const char* get_filename_ext(char* filename) {
 const char* lookup(const char* extension){
     if(!strcasecmp(extension, "html"))
 		return "text/html";
-    else if(!strcasecmp(extension,"jpg"))
+    else if(!strcasecmp(extension, "jpg"))
 		return "image/jpeg";
 	else
 		return NULL;
