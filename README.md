@@ -1,4 +1,4 @@
-# twebserver
+# twebserv
 Just supports GET method and transmits static page. 
 ### Usage
 <pre>make twebserv
