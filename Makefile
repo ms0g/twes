@@ -1,4 +1,5 @@
 OBJS = twebserv.o server.o utils.o http.o
+TARGET = twebserv
 CC = gcc
 DEBUG = -g
 IDIR = include
@@ -9,8 +10,8 @@ LFLAGS = -I$(IDIR) -Wall $(DEBUG)
 %.o: %.c $(DEPS)
 	$(CC) $(CFLAGS) $< 
 
-twebserv: $(OBJS)
-	$(CC) $(LFLAGS) $^ -o $@
+all: $(OBJS)
+	$(CC) $(LFLAGS) $^ -o $(TARGET)
 
 clean:
 	rm -f *.o twebserv
