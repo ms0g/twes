@@ -1,12 +1,22 @@
 # twebserv
 Just supports GET method and transmits static page. 
-### Usage
-<pre>make twebserv
-./twebserv -p [port] /path/root/ </pre>
-to clean binary and obj files
-<pre> make clean </pre>
+###Compile
+```bash
+make
+```
+###Usage
+```bash
+./twebserv -p [port] /path/root/
+```
+If you want to re-compile
+```bash 
+make clean
+make
+```
 for help
-<pre>./twebserv -h</pre>
+```bash
+./twebserv -h
+```
 
 ### TODO
 * Process dynamic contents like PHPs.
