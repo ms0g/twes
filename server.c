@@ -25,8 +25,8 @@ void error(char* msg){
 	exit(1);
 }		
 
-void read_in(int socket, char* buf, int len){
-	int c  = recv(socket, buf, len, 0);
+void read_in(int socket, char* buf){
+	int c  = recv(socket, buf, BUFLEN, 0);
 	if(c == 0 || c == -1)
 		error("failed to read browser request");
 }
@@ -95,7 +95,7 @@ void init_server(int port, const char* path){
 			error("Can’t open secondary socket");
 		if(!fork()){
 			close(listener_d);
-			read_in(connect_d, buf, BUFLEN);
+			read_in(connect_d, buf);
 			http_parse(connect_d,buf,req);
 			http_response(connect_d, path, buf, req);
 			close(connect_d);
