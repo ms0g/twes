@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include "http.h"
+
 
 void handle_shutdown(int sig);
 void error(char* msg);
@@ -19,6 +19,6 @@ void bind_to_port(int socket, int port);
 int catch_signal(int sig, void (*handler)(int));
 void init_server(int port, const char* path);
 void reuse(int socket);
-void destroy(char* buf, request* req);
+void destroy(void* ptr);
 #endif
 

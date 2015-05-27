@@ -99,18 +99,16 @@ void init_server(int port, const char* path){
 			http_parse(connect_d,buf,req);
 			http_response(connect_d, path, buf, req);
 			close(connect_d);
-			destroy(buf, req);
+			destroy(buf);
+			destroy(req);
 			exit(0);
 		}
 	}
 }
 
 
-void destroy(char* buf, request* req){
-	free(buf);
-	free(req);
-	buf = NULL;
-	req = NULL;
+inline void destroy(void* ptr){
+	free(ptr);
 }
 
 
