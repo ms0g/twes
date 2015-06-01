@@ -32,6 +32,16 @@ const char* lookup(const char* extension){
 		return "text/html";
     else if(!strcasecmp(extension, "jpg"))
 		return "image/jpeg";
+	else if(!strcasecmp(extension,"css"))
+		return "text/css";
+	else if(!strcasecmp(extension, "gif"))
+		return "image/gif";
+	else if(!strcasecmp(extension, "ico"))
+		return "image/x-icon";
+	else if(!strcasecmp(extension, "png"))
+		return "image/gif";
+	else if(!strcasecmp(extension, "js"))
+		return "image/javascript";
 	else
 		return NULL;
 }
