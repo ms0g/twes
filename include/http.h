@@ -7,7 +7,11 @@
 #include <fcntl.h>
 
 #define BUFLEN 8096
-
+#define ERR404 "404 Not Found"
+#define ERR405 "405 Method Not Allowed"
+#define ERR500 "500 Internal Server Error"
+#define STATE200 "200 Ok"
+#define DEFAULTMIME "text/html"
 
 typedef struct{
 	char method[BUFLEN];
