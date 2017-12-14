@@ -1,24 +1,18 @@
-# twebserv
+# twes
 Just supports GET method and transmits static page. 
-###Compile
+### Prerequisites
++ [CMake](http://www.cmake.org "CMake project page") (>= 3.8)
++ [GCC](http://gcc.gnu.org "GCC home") (>= 5.4.0)
+### Building
 ```bash
-make
+mkdir build && cd build
+cmake .. && cmake --build .
 ```
-###Usage
+### Usage
 ```bash
-./twebserv -p [port] /path/root/
-```
-If you want to re-compile
-```bash 
-make clean
-make
+./twes -p [port] /path/html/files
 ```
 for help
 ```bash
-./twebserv -h
+./twes -h
 ```
-
-### TODO
-* Process dynamic contents like PHPs.
-* Add the other methods HEAD,POST,PUT,DELETE.
-
