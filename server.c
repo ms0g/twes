@@ -22,6 +22,15 @@ static const char *res_header = "%s %s\nServer: twes/1.0\nContent-Length: %ld\nC
 int listenerfd, connectfd, file; // file descriptors
 char *buf; // buffer keeping http request and response
 
+static void HTTP_ERROR(char *buf, int connectfd, const char *res_header,
+                       const char *protocol, const char *err, const char *err_str,
+                       const char *mime) {
+    sprintf(buf, res_header, protocol, err, strlen(err_str), mime);
+    write(connectfd, buf, strlen(buf));
+    write(connectfd, err_str, strlen(err_str));
+}
+
+
 static void read_in(int connectfd, char *buf) {
     int c;
     if ((c = recv(connectfd, buf, BUFLEN, 0)) >= 0) {
@@ -107,12 +116,6 @@ void init_server(int port, const char *dir) {
             error("Can’t open secondary socket");
         if ((ch_pid = fork()) == 0) {
 
-#define HTTP_ERROR(buf, connectfd, res_header, protocol, err, err_str, len, mime) { \
-            sprintf(buf, res_header, protocol, err, strlen(err_str), mime);         \
-            write(connectfd, buf, strlen(buf));                                     \
-            write(connectfd, err_str, strlen(err_str));                             \
-            }
-
             close(listenerfd);
             read_in(connectfd, buf);
 
@@ -125,11 +128,11 @@ void init_server(int port, const char *dir) {
             memset(buf, 0, BUFLEN);
 
             if (strcmp(&method[0], "GET")) {
-                HTTP_ERROR(buf, connectfd, res_header, protocol, ERR405, error405, strlen(error405), DEFAULTMIME);
+                HTTP_ERROR(buf, connectfd, res_header, protocol, ERR405, error405, DEFAULTMIME);
             } else if (chdir(dir) == -1) {
-                HTTP_ERROR(buf, connectfd, res_header, protocol, ERR500, error500, strlen(error500), DEFAULTMIME);
+                HTTP_ERROR(buf, connectfd, res_header, protocol, ERR500, error500, DEFAULTMIME);
             } else if ((file = open(&path[1], O_RDONLY)) == -1) {
-                HTTP_ERROR(buf, connectfd, res_header, protocol, ERR404, error404, strlen(error404), DEFAULTMIME);
+                HTTP_ERROR(buf, connectfd, res_header, protocol, ERR404, error404, DEFAULTMIME);
             } else {
                 mime = get_mime(&path[1]);
                 len = lseek(file, (off_t) 0, SEEK_END);
@@ -151,6 +154,5 @@ void init_server(int port, const char *dir) {
     }
 }
 
-#undef HTTP_ERROR
 
 

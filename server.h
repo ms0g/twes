@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static void HTTP_ERROR(char *buf, int connectfd, const char *res_header, const char *protocol,
+                       const char *err, const char *err_str, const char *mime);
 /**
  * Shutdown server
  */
