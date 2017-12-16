@@ -1,11 +1,15 @@
 #include <getopt.h>
 #include <memory.h>
+#include <stdlib.h>
 #include "server.h"
 
 int main(int argc, char *argv[]) {
     int opt;
     int port;
-    const char *usage = "Usage: ./twes -p [port] path/root/";
+    int verbose = 0;
+    int daemonize = 0;
+
+    const char *usage = "Usage: ./twes -p [port] path/html/files";
     while ((opt = getopt(argc, argv, "hp:")) != -1) {
         switch (opt) {
             // -h
@@ -17,8 +21,18 @@ int main(int argc, char *argv[]) {
             case 'p':
                 port = atoi(optarg);
                 break;
+            case 'v':
+                verbose = 1;
+                break;
+            case 'd':
+                daemonize = 1;
+                break;
+            default:
+                break;
         }
     }
+
+
     if (port < 0 || argv[optind] == NULL || strlen(argv[optind]) == 0)
         printf("%s\n", usage);
     else {
