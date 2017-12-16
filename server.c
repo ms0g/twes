@@ -49,10 +49,6 @@ static void bind_to_port(int listenerfd, int port) {
 
 
 static void handle_shutdown(int sig) {
-#define DEALLOC(ptr) { \
-    free(ptr);         \
-    (ptr) = NULL;      \
-}
     if (listenerfd)
         close(listenerfd);
 
@@ -63,11 +59,12 @@ static void handle_shutdown(int sig) {
         close(file);
 
     if (request) {
-        DEALLOC(request)
+       clean_http_request(request);
     }
 
     if (buf) {
-        DEALLOC(buf)
+        free(buf);
+        buf = NULL;
     }
     fprintf(stderr, "Interrupted!\n");
     exit(0);
