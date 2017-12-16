@@ -68,7 +68,6 @@ static void handle_shutdown(int sig) {
     }
     fprintf(stderr, "Interrupted!\n");
     exit(0);
-#undef DEALLOC
 }
 
 
