@@ -80,7 +80,7 @@ static int catch_signal(int sig, void (*handler)(int)) {
 }
 
 
-void init_server(int port, const char *dir) {
+void init_server(int port, const char *dir, options opts) {
     pid_t ch_pid;
     char *mime;
     long len;
@@ -112,13 +112,13 @@ void init_server(int port, const char *dir) {
 
             if (strcmp(&request->method[0], "GET")) {
                 http_error(request, buf, connectfd, res_header, ERR405, error405, DEFAULTMIME);
-                LOG(request->method, request->path, request->protocol, ERR405)
+                LOG(request, ERR405,opts)
             } else if (chdir(dir) == -1) {
                 http_error(request, buf, connectfd, res_header, ERR500, error500, DEFAULTMIME);
-                LOG(request->method, request->path, request->protocol, ERR500);
+                LOG(request, ERR500, opts);
             } else if ((file = open(&request->path[1], O_RDONLY)) == -1) {
                 http_error(request, buf, connectfd, res_header, ERR404, error404, DEFAULTMIME);
-                LOG(request->method, request->path, request->protocol, ERR404)
+                LOG(request, ERR404,opts)
             } else {
                 mime = get_mime(&request->path[1]);
                 len = lseek(file, (off_t) 0, SEEK_END);
@@ -129,7 +129,7 @@ void init_server(int port, const char *dir) {
                 while (read(file, buf, BUFLEN) > 0)
                     write(connectfd, buf, BUFLEN);
                 close(file);
-                LOG(request->method, request->path, request->protocol, STATE200)
+                LOG(request, STATE200, opts)
             }
             close(connectfd);
             free(buf);
