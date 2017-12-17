@@ -8,7 +8,7 @@
 #define STATE200 "200 OK"
 #define DEFAULTMIME "text/html"
 
-#define LOG(method, path, protocol, status) printf("%s %s %s %s\n",method,path,protocol,status);
+
 
 typedef struct {
     char method[10];

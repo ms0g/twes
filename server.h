@@ -46,7 +46,7 @@ static int catch_signal(int sig, void (*handler)(int));
 /**
  * Initialize server
  */
-void init_server(int port, const char *path);
+void init_server(int port, const char *path, options opts);
 
 #endif //TWES_SERVER_H
 

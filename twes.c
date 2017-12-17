@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     int daemonize = 0;
 
     const char *usage = "Usage: ./twes -p [port] path/html/files";
-    while ((opt = getopt(argc, argv, "hp:")) != -1) {
+    while ((opt = getopt(argc, argv, "dvhp:")) != -1) {
         switch (opt) {
             // -h
             case 'h':
@@ -32,11 +32,14 @@ int main(int argc, char *argv[]) {
         }
     }
 
-
+    options opts = {
+            .verbose=verbose,
+            .daemonize=daemonize
+    };
     if (port < 0 || argv[optind] == NULL || strlen(argv[optind]) == 0)
         printf("%s\n", usage);
     else {
-        init_server(port, argv[optind]);
+        init_server(port, argv[optind], opts);
     }
     return 0;
 }
