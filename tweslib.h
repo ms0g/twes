@@ -1,10 +1,12 @@
 #ifndef TWES_LIB_H
 #define TWES_LIB_H
 
-#define LOG(request, status, opts) { \
+#define OUT(fd, opts) ((opts).daemonize ? (fd):stdout)
+
+#define LOG(request, status, opts, fd) { \
     if ((opts).verbose) \
-        printf("%s",(request)->headers); \
-    else printf("%s %s %s %s\n",(request)->method,(request)->path,(request)->protocol,status); \
+        fprintf(OUT(fd, opts),"%s",(request)->headers); \
+    else fprintf(OUT(fd, opts),"%s %s %s %s\n",(request)->method,(request)->path,(request)->protocol,status); \
 }
 
 void error(char *msg);
