@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <string.h>
 #include "server.h"
 #include "tweslib.h"
@@ -58,15 +59,18 @@ static void handle_shutdown(int sig) {
     if (file)
         close(file);
 
+    if (logfd)
+        fclose(logfd);
+
     if (request) {
-       clean_http_request(request);
+        clean_http_request(request);
     }
 
     if (buf) {
         free(buf);
         buf = NULL;
     }
-    fprintf(stderr, "Interrupted!\n");
+
     exit(0);
 }
 
@@ -80,7 +84,7 @@ static int catch_signal(int sig, void (*handler)(int)) {
 }
 
 
-void init_server(int port, const char *dir, options opts) {
+void init_server(int port, const char *dir) {
     pid_t ch_pid;
     char *mime;
     long len;
@@ -99,7 +103,7 @@ void init_server(int port, const char *dir, options opts) {
     buf = (char *) tmalloc(BUFLEN);
 
     while (1) {
-        connectfd = accept(listenerfd, (struct sockaddr *) &client_addr, (socklen_t * ) & address_size);
+        connectfd = accept(listenerfd, (struct sockaddr *) &client_addr, (socklen_t *) &address_size);
         if (connectfd == -1)
             error("Can’t open secondary socket");
         if ((ch_pid = fork()) == 0) {
@@ -112,13 +116,13 @@ void init_server(int port, const char *dir, options opts) {
 
             if (strcmp(&request->method[0], "GET")) {
                 http_error(request, buf, connectfd, res_header, ERR405, error405, DEFAULTMIME);
-                LOG(request, ERR405,opts)
+                LOG(request, ERR405, opts, logfd)
             } else if (chdir(dir) == -1) {
                 http_error(request, buf, connectfd, res_header, ERR500, error500, DEFAULTMIME);
-                LOG(request, ERR500, opts);
+                LOG(request, ERR500, opts, logfd)
             } else if ((file = open(&request->path[1], O_RDONLY)) == -1) {
                 http_error(request, buf, connectfd, res_header, ERR404, error404, DEFAULTMIME);
-                LOG(request, ERR404,opts)
+                LOG(request, ERR404, opts, logfd)
             } else {
                 mime = get_mime(&request->path[1]);
                 len = lseek(file, (off_t) 0, SEEK_END);
@@ -129,7 +133,7 @@ void init_server(int port, const char *dir, options opts) {
                 while (read(file, buf, BUFLEN) > 0)
                     write(connectfd, buf, BUFLEN);
                 close(file);
-                LOG(request, STATE200, opts)
+                LOG(request, STATE200, opts, logfd)
             }
             close(connectfd);
             free(buf);

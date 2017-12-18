@@ -9,6 +9,12 @@ typedef struct {
     int daemonize;
 } options;
 
+/** Options  */
+options opts;
+
+/** Log file */
+FILE *logfd;
+
 /** Socket and file descriptors */
 int listenerfd, connectfd, file;
 
@@ -46,7 +52,7 @@ static int catch_signal(int sig, void (*handler)(int));
 /**
  * Initialize server
  */
-void init_server(int port, const char *path, options opts);
+void init_server(int port, const char *path);
 
 #endif //TWES_SERVER_H
 
