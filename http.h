@@ -9,7 +9,6 @@
 #define DEFAULTMIME "text/html"
 
 
-
 typedef struct {
     char method[10];
     char protocol[10];
@@ -17,10 +16,19 @@ typedef struct {
     char *headers;
 } http_request;
 
+/**
+ * Initialize http request
+ */
 http_request *init_http_request(char *buf);
 
+/**
+ * Clean request header
+ */
 void clean_http_request(http_request *req);
 
+/**
+ * Create http error
+ */
 void http_error(http_request *request, char *buf, int connectfd, const char *res_header,
                 const char *status, const char *status_html, const char *mime);
 

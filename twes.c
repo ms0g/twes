@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[]) {
     int opt;
-    int port=0;
+    int port = 0;
     char cwd[BUFLEN];
     pid_t chpid;
     int verbose = 0;
@@ -20,6 +20,7 @@ int main(int argc, char *argv[]) {
             case 'h':
                 printf("%s\n", usage);
                 return 0;
+
                 // -p port
             case 'p':
                 port = atoi(optarg);

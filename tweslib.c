@@ -11,6 +11,7 @@ void error(char *msg) {
     exit(EXIT_FAILURE);
 }
 
+
 char *get_mime(char *filename) {
     char *dot = strrchr(filename, '.') + 1;
     if (!dot)
@@ -29,8 +30,8 @@ char *get_mime(char *filename) {
         return "image/png";
     else if (!strcasecmp(dot, "js"))
         return "application/javascript";
-
 }
+
 
 void *tmalloc(size_t size) {
     void *p = malloc(size);
