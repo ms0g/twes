@@ -8,7 +8,6 @@
 #include <string.h>
 #include "server.h"
 #include "tweslib.h"
-#include "http.h"
 
 const char *error405 = "<html><body><h1>405 Method Not Allowed</h1></body></html>";
 const char *error404 = "<html><body><h1>404 Not Found</h1></body></html>";

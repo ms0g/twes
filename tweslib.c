@@ -4,10 +4,11 @@
 #include <string.h>
 #include <errno.h>
 #include "tweslib.h"
+#include "server.h"
 
 
 void error(char *msg) {
-    fprintf(stderr, "%s: %s\n", msg, strerror(errno));
+    fprintf(OUT(logfd, opts), "%s: %s\n", msg, strerror(errno));
     exit(EXIT_FAILURE);
 }
 
