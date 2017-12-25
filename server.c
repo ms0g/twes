@@ -9,9 +9,6 @@
 #include "server.h"
 #include "tweslib.h"
 
-const char *error405 = "<html><body><h1>405 Method Not Allowed</h1></body></html>";
-const char *error404 = "<html><body><h1>404 Not Found</h1></body></html>";
-const char *error500 = "<html><body><h1>500 Internal Server Error</h1></body></html>";
 const char *res_header = "%s %s\nServer: twes/1.0\nContent-Length: %ld\nContent-Type: %s\n\n";
 
 
@@ -114,13 +111,13 @@ void init_server(int port, const char *dir) {
             memset(buf, 0, BUFLEN);
 
             if (strcmp(&request->method[0], "GET")) {
-                http_error(request, buf, connectfd, res_header, ERR405, error405, DEFAULTMIME);
+                http_error(connectfd,request, buf, res_header, ERROR405, DEFAULTMIME);
                 LOG(request, ERR405, opts, logfd)
             } else if (chdir(dir) == -1) {
-                http_error(request, buf, connectfd, res_header, ERR500, error500, DEFAULTMIME);
+                http_error(connectfd,request, buf, res_header, ERROR500, DEFAULTMIME);
                 LOG(request, ERR500, opts, logfd)
             } else if ((file = open(&request->path[1], O_RDONLY)) == -1) {
-                http_error(request, buf, connectfd, res_header, ERR404, error404, DEFAULTMIME);
+                http_error(connectfd,request, buf, res_header, ERROR404, DEFAULTMIME);
                 LOG(request, ERR404, opts, logfd)
             } else {
                 mime = get_mime(&request->path[1]);
