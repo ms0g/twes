@@ -9,6 +9,7 @@
     else fprintf(OUT(fd, opts),"%s %s %s %s\n",(request)->method,(request)->path,(request)->protocol,status); \
 }
 
+
 /**
  * System error
  */
@@ -17,7 +18,12 @@ void error(char *msg);
 /**
  * Get mime type of file
  */
-char *get_mime(char *filename);
+char *get_mime_type(char *filename);
+
+/**
+ * Get Greenwich Mean Time
+ */
+char *get_gmt();
 
 /**
  * Allocate

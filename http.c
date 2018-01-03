@@ -42,7 +42,7 @@ void http_error(int connectfd, http_request *request, char *buf, const char *res
         default:
             break;
     }
-    sprintf(buf, res_header, request->protocol, status, strlen(err_htm), mime);
+    sprintf(buf, res_header, request->protocol, status, get_gmt(), strlen(err_htm), mime);
     write(connectfd, buf, strlen(buf));
     write(connectfd, err_htm, strlen(err_htm));
 }

@@ -9,7 +9,7 @@
 #include "server.h"
 #include "tweslib.h"
 
-const char *res_header = "%s %s\nServer: twes/1.0\nContent-Length: %ld\nContent-Type: %s\n\n";
+const char *res_header = "%s %s\nServer: twes/1.0\nDate: %s\nContent-Length: %ld\nContent-Type: %s\n\n";
 
 
 static void read_in(int connectfd, char *buf) {
@@ -120,10 +120,10 @@ void init_server(int port, const char *dir) {
                 http_error(connectfd,request, buf, res_header, ERROR404, DEFAULTMIME);
                 LOG(request, ERR404, opts, logfd)
             } else {
-                mime = get_mime(&request->path[1]);
+                mime = get_mime_type(&request->path[1]);
                 len = lseek(file, (off_t) 0, SEEK_END);
                 lseek(file, (off_t) 0, SEEK_SET);
-                sprintf(buf, res_header, request->protocol, STATE200, len, mime);
+                sprintf(buf, res_header, request->protocol, STATE200, get_gmt(), len, mime);
                 write(connectfd, buf, strlen(buf));
 
                 while (read(file, buf, BUFLEN) > 0)

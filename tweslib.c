@@ -3,6 +3,7 @@
 #include <strings.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 #include "tweslib.h"
 #include "server.h"
 
@@ -13,7 +14,7 @@ void error(char *msg) {
 }
 
 
-char *get_mime(char *filename) {
+char *get_mime_type(char *filename) {
     char *dot = strrchr(filename, '.') + 1;
     if (!dot)
         return "text/plain";
@@ -31,6 +32,17 @@ char *get_mime(char *filename) {
         return "image/png";
     else if (!strcasecmp(dot, "js"))
         return "application/javascript";
+}
+
+
+char *get_gmt() {
+    struct tm *gm;
+    static char date[50];
+
+    time_t tm = time(NULL);
+    gm = gmtime(&tm);
+    strftime(date, sizeof(date), "%a, %d %b %Y %T GMT", gm);
+    return date;
 }
 
 
