@@ -25,6 +25,11 @@ char *buf;
 http_request *request;
 
 /**
+ * System error
+ */
+void error(char *msg);
+
+/**
  * Shutdown server
  */
 static void handle_shutdown(int sig);

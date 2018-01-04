@@ -6,11 +6,15 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <errno.h>
 #include "server.h"
 #include "tweslib.h"
 
-const char *res_header = "%s %s\nServer: twes/1.0\nDate: %s\nContent-Length: %ld\nContent-Type: %s\n\n";
 
+void error(char *msg) {
+    fprintf(OUT(logfd, opts), "%s: %s\n", msg, strerror(errno));
+    exit(EXIT_FAILURE);
+}
 
 static void read_in(int connectfd, char *buf) {
     int c;
@@ -111,25 +115,22 @@ void init_server(int port, const char *dir) {
             memset(buf, 0, BUFLEN);
 
             if (strcmp(&request->method[0], "GET")) {
-                http_error(connectfd,request, buf, res_header, ERROR405, DEFAULTMIME);
-                LOG(request, ERR405, opts, logfd)
+                http_error(connectfd, request, "405", "text/html");
             } else if (chdir(dir) == -1) {
-                http_error(connectfd,request, buf, res_header, ERROR500, DEFAULTMIME);
-                LOG(request, ERR500, opts, logfd)
+                http_error(connectfd, request, "500", "text/html");
             } else if ((file = open(&request->path[1], O_RDONLY)) == -1) {
-                http_error(connectfd,request, buf, res_header, ERROR404, DEFAULTMIME);
-                LOG(request, ERR404, opts, logfd)
+                http_error(connectfd, request, "404", "text/html");
             } else {
                 mime = get_mime_type(&request->path[1]);
                 len = lseek(file, (off_t) 0, SEEK_END);
                 lseek(file, (off_t) 0, SEEK_SET);
-                sprintf(buf, res_header, request->protocol, STATE200, get_gmt(), len, mime);
+                sprintf(buf, res_header_tmpl, request->protocol, "200 OK", get_gmt(), len, mime);
                 write(connectfd, buf, strlen(buf));
 
                 while (read(file, buf, BUFLEN) > 0)
                     write(connectfd, buf, BUFLEN);
                 close(file);
-                LOG(request, STATE200, opts, logfd)
+                LOG(request, "200 OK", opts, logfd)
             }
             close(connectfd);
             free(buf);

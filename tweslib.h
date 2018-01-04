@@ -11,11 +11,6 @@
 
 
 /**
- * System error
- */
-void error(char *msg);
-
-/**
  * Get mime type of file
  */
 char *get_mime_type(char *filename);

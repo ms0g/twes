@@ -2,16 +2,8 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string.h>
-#include <errno.h>
 #include <time.h>
 #include "tweslib.h"
-#include "server.h"
-
-
-void error(char *msg) {
-    fprintf(OUT(logfd, opts), "%s: %s\n", msg, strerror(errno));
-    exit(EXIT_FAILURE);
-}
 
 
 char *get_mime_type(char *filename) {
@@ -49,7 +41,7 @@ char *get_gmt() {
 void *tmalloc(size_t size) {
     void *p = malloc(size);
     if (!p) {
-        error("unable to allocate memory");
+        perror("unable to allocate memory");
     }
     return p;
 }
