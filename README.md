@@ -15,4 +15,8 @@ cmake .. && cmake --build .
 for help
 ```bash
 ./twes -h
+Usage: ./twes -p [port] path/html/files
+Options: -d [run as daemon]
+         -v [print full log]
+
 ```
