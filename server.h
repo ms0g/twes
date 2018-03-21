@@ -27,12 +27,12 @@ http_request *request;
 /**
  * System error
  */
-void error(char *msg);
+void error(char *msg) __attribute__ ((noreturn));
 
 /**
  * Shutdown server
  */
-static void handle_shutdown(int sig);
+static void handle_shutdown(int sig) __attribute__ ((noreturn));
 
 /**
  * Read the socket

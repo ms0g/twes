@@ -4,7 +4,6 @@
 #include <arpa/inet.h>
 #include <signal.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
 #include "server.h"
@@ -13,7 +12,7 @@
 
 void error(char *msg) {
     fprintf(OUT(logfd, opts), "%s: %s\n", msg, strerror(errno));
-    exit(EXIT_FAILURE);
+    exit(1);
 }
 
 static void read_in(int connectfd, char *buf) {
@@ -50,22 +49,11 @@ static void bind_to_port(int listenerfd, int port) {
 
 
 static void handle_shutdown(int sig) {
-    if (listenerfd)
-        close(listenerfd);
-
-    if (connectfd)
-        close(connectfd);
-
-    if (file)
-        close(file);
-
-    if (logfd)
-        fclose(logfd);
-
-    if (request) {
-        clean_http_request(request);
-    }
-
+    if (listenerfd) close(listenerfd);
+    if (connectfd) close(connectfd);
+    if (file) close(file);
+    if (logfd) fclose(logfd);
+    if (request) clean_http_request(request);
     if (buf) {
         free(buf);
         buf = NULL;
@@ -114,13 +102,11 @@ void init_server(int port, const char *dir) {
             request = init_http_request(buf);
             memset(buf, 0, BUFLEN);
 
-            if (strcmp(&request->method[0], "GET")) {
-                http_error(connectfd, request, "405", "text/html");
-            } else if (chdir(dir) == -1) {
-                http_error(connectfd, request, "500", "text/html");
-            } else if ((file = open(&request->path[1], O_RDONLY)) == -1) {
+            if (strcmp(&request->method[0], "GET")) http_error(connectfd, request, "405", "text/html");
+            else if (chdir(dir) == -1) http_error(connectfd, request, "500", "text/html");
+            else if ((file = open(&request->path[1], O_RDONLY)) == -1)
                 http_error(connectfd, request, "404", "text/html");
-            } else {
+            else {
                 mime = get_mime_type(&request->path[1]);
                 len = lseek(file, (off_t) 0, SEEK_END);
                 lseek(file, (off_t) 0, SEEK_SET);
@@ -135,11 +121,9 @@ void init_server(int port, const char *dir) {
             close(connectfd);
             free(buf);
             clean_http_request(request);
-            exit(EXIT_SUCCESS);
-        } else if (ch_pid > 0) {
-            close(connectfd);
-        } else if (ch_pid < 0)
-            error("system call fork");
+            exit(0);
+        } else if (ch_pid > 0) close(connectfd);
+        else if (ch_pid < 0) error("system call fork");
     }
 }
 
