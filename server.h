@@ -3,14 +3,15 @@
 
 #include <stdio.h>
 #include "http.h"
+#include "tweslib.h"
 
 typedef struct {
     int verbose;
     int daemonize;
-} options;
+} options_t;
 
 /** Options  */
-options opts;
+options_t opts;
 
 /** Log file */
 FILE *logfd;
@@ -22,17 +23,17 @@ int listenerfd, connectfd, file;
 char *buf;
 
 /** Http Request */
-http_request *request;
+http_request_t *request;
 
 /**
  * System error
  */
-void error(char *msg) __attribute__ ((noreturn));
+void error(char *msg) __NORETURN;
 
 /**
  * Shutdown server
  */
-static void handle_shutdown(int sig) __attribute__ ((noreturn));
+static void handle_shutdown(int sig) __NORETURN;
 
 /**
  * Read the socket

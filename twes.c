@@ -5,16 +5,17 @@
 #include <unistd.h>
 #include "server.h"
 
-void echo_usage() __attribute__ ((noreturn));
-void init_daemonizing();
+/** print usage */
+void echo_usage(void) __NORETURN;
+
+/** run as daemon  */
+void init_daemonizing(void);
 
 int main(int argc, char *argv[]) {
     int opt;
     int port = 0;
-
     int verbose = 0;
     int daemonize = 0;
-
 
     while ((opt = getopt(argc, argv, "dvhp:")) != -1) {
         switch (opt) {
@@ -37,7 +38,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    opts = (options){.verbose=verbose, .daemonize=daemonize};
+    opts = (options_t){.verbose=verbose, .daemonize=daemonize};
 
     if (port <= 0 || argv[optind] == NULL || strlen(argv[optind]) == 0) echo_usage();
     if (opts.daemonize) init_daemonizing();
@@ -47,13 +48,13 @@ int main(int argc, char *argv[]) {
 }
 
 
-void echo_usage(){
+void echo_usage(void){
     const char *usage = "Usage: ./twes -p [port] path/html/files\nOptions: -d [run as daemon]\n\t -v [print full log]";
     printf("%s\n",usage);
     exit(1);
 }
 
-void init_daemonizing() {
+void init_daemonizing(void) {
     char cwd[BUFLEN];
     pid_t chpid;
 

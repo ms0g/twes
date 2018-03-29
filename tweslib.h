@@ -1,6 +1,8 @@
 #ifndef TWES_LIB_H
 #define TWES_LIB_H
 
+#define __NORETURN __attribute__ ((noreturn))
+
 #define OUT(fd, opts) ((opts).daemonize ? (fd):stdout)
 
 #define LOG(request, status, opts, fd) { \
@@ -23,6 +25,6 @@ char *get_gmt();
 /**
  * Allocate
  */
-void *tmalloc(size_t size);
+void *tw_alloc(size_t size);
 
 #endif //TWES_LIB_H

@@ -38,7 +38,7 @@ char *get_gmt() {
 }
 
 
-void *tmalloc(size_t size) {
+void *tw_alloc(size_t size) {
     void *p = malloc(size);
     if (!p) {
         perror("unable to allocate memory");

@@ -6,8 +6,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <wait.h>
 #include "server.h"
-#include "tweslib.h"
 
 
 void error(char *msg) {
@@ -88,7 +88,7 @@ void init_server(int port, const char *dir) {
     if (listen(listenerfd, 10) == -1)
         error("Can't listen");
 
-    buf = (char *) tmalloc(BUFLEN);
+    buf = (char *) tw_alloc(BUFLEN);
 
     while (1) {
         connectfd = accept(listenerfd, (struct sockaddr *) &client_addr, (socklen_t *) &address_size);
@@ -102,8 +102,10 @@ void init_server(int port, const char *dir) {
             request = init_http_request(buf);
             memset(buf, 0, BUFLEN);
 
-            if (strcmp(&request->method[0], "GET")) http_error(connectfd, request, "405", "text/html");
-            else if (chdir(dir) == -1) http_error(connectfd, request, "500", "text/html");
+            if (strcmp(&request->method[0], "GET"))
+                http_error(connectfd, request, "405", "text/html");
+            else if (chdir(dir) == -1)
+                http_error(connectfd, request, "500", "text/html");
             else if ((file = open(&request->path[1], O_RDONLY)) == -1)
                 http_error(connectfd, request, "404", "text/html");
             else {
@@ -122,8 +124,15 @@ void init_server(int port, const char *dir) {
             free(buf);
             clean_http_request(request);
             exit(0);
-        } else if (ch_pid > 0) close(connectfd);
+        }
+
         else if (ch_pid < 0) error("system call fork");
+        else {
+            close(connectfd);
+            // clean child processes otherwise they will be zombie
+            if (waitpid(ch_pid,NULL,0) < 0)
+                error("failed to collect child process");
+        }
     }
 }
 

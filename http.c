@@ -21,9 +21,9 @@ static const char *status[] = {
 static const char *error_tmpl = "<html><body><h1>%s</h1></body></html>";
 const char *res_header_tmpl = "%s %s\nServer: twes/1.0\nDate: %s\nContent-Length: %ld\nContent-Type: %s\n\n";
 
-http_request *init_http_request(char *buf) {
-    http_request *req = (http_request *) tmalloc(sizeof(http_request));
-    req->headers = (char *) tmalloc(BUFLEN);
+http_request_t *init_http_request(char *buf) {
+    http_request_t *req = (http_request_t *) tw_alloc(sizeof(http_request_t));
+    req->headers = (char *) tw_alloc(BUFLEN);
 
     sscanf(buf, "%s %s %s", req->method, req->path, req->protocol);
 
@@ -36,7 +36,7 @@ http_request *init_http_request(char *buf) {
 }
 
 
-void http_error(int connectfd, http_request *request, char *err, const char *mime) {
+void http_error(int connectfd, http_request_t *request, char *err, const char *mime) {
 
 #define NUM_ERRORS (sizeof(error_codes) / sizeof(char *))
 
@@ -55,7 +55,7 @@ void http_error(int connectfd, http_request *request, char *err, const char *mim
     LOG(request, st, opts, logfd)
 }
 
-void clean_http_request(http_request *req) {
+void clean_http_request(http_request_t *req) {
     free(req->headers);
     req->headers = NULL;
     free(req);
