@@ -14,10 +14,9 @@ void init_daemonizing(void);
 int main(int argc, char *argv[]) {
     int opt;
     int port = 0;
-    int verbose = 0;
     int daemonize = 0;
 
-    while ((opt = getopt(argc, argv, "dvhp:")) != -1) {
+    while ((opt = getopt(argc, argv, "dhp:")) != -1) {
         switch (opt) {
             // -h
             case 'h':
@@ -27,9 +26,6 @@ int main(int argc, char *argv[]) {
             case 'p':
                 port = atoi(optarg);
                 break;
-            case 'v':
-                verbose = 1;
-                break;
             case 'd':
                 daemonize = 1;
                 break;
@@ -38,10 +34,13 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    opts = (options_t){.verbose=verbose, .daemonize=daemonize};
+    opts = (options_t){.daemonize=daemonize};
 
-    if (port <= 0 || argv[optind] == NULL || strlen(argv[optind]) == 0) echo_usage();
-    if (opts.daemonize) init_daemonizing();
+    if (port <= 0 || argv[optind] == NULL || strlen(argv[optind]) == 0)
+        echo_usage();
+
+    if (opts.daemonize)
+        init_daemonizing();
 
     init_server(port, argv[optind]);
     return 0;
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
 
 
 void echo_usage(void){
-    const char *usage = "Usage: ./twes -p [port] path/html/files\nOptions: -d [run as daemon]\n\t -v [print full log]";
+    const char *usage = "Usage: ./twes -p [port] path/html/files\nOptions: -d [run as daemon]\n\t";
     printf("%s\n",usage);
     exit(1);
 }
@@ -69,14 +68,17 @@ void init_daemonizing(void) {
     // Get current working dir
     getcwd(cwd, sizeof(cwd));
     strcat(cwd, "/twes.log");
+
     // Create log file
     logfd = fopen(cwd, "w+");
 
     // Set new session id for child processs
-    if (setsid() < 0) exit(EXIT_FAILURE);
+    if (setsid() < 0)
+        exit(EXIT_FAILURE);
 
     //Change current working dir
-    if (chdir("/") < 0) exit(EXIT_FAILURE);
+    if (chdir("/") < 0)
+        exit(EXIT_FAILURE);
 
     // Close out the standard file descriptors
     close(STDIN_FILENO);

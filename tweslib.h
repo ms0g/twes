@@ -5,15 +5,10 @@
 
 #define OUT(fd, opts) ((opts).daemonize ? (fd):stdout)
 
-#define LOG(request, status, opts, fd) { \
-    if ((opts).verbose) \
-        fprintf(OUT(fd, opts),"%s",(request)->headers); \
-    else fprintf(OUT(fd, opts),"%s %s %s %s\n",(request)->method,(request)->path,(request)->protocol,status); \
-}
-
 
 /**
- * Get mime type of file
+ * Get mime type of file.
+ * Default html
  */
 char *get_mime_type(char *filename);
 
@@ -25,6 +20,6 @@ char *get_gmt();
 /**
  * Allocate
  */
-void *tw_alloc(size_t size);
+void *tws_calloc(size_t size);
 
 #endif //TWES_LIB_H

@@ -4,26 +4,27 @@
 #include <malloc.h>
 #include "http.h"
 #include "tweslib.h"
-#include "server.h"
 
-static const char *error_codes[] = {
+static const char *status_codes[] = {
+        "200",
         "404",
         "405",
         "500"
 };
 
-static const char *status[] = {
+static const char *status_list[] = {
+        "200 OK",
         "404 Not Found",
         "405 Method Not Allowed",
         "500 Internal Server Error"
 };
 
-static const char *error_tmpl = "<html><body><h1>%s</h1></body></html>";
-const char *res_header_tmpl = "%s %s\nServer: twes/1.0\nDate: %s\nContent-Length: %ld\nContent-Type: %s\n\n";
+static const char *error_html = "<html><body><h1>%s</h1></body></html>";
+static const char *response_header = "%s %s\r\nServer: twes/1.0\r\nDate: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n";
 
 http_request_t *init_http_request(char *buf) {
-    http_request_t *req = (http_request_t *) tw_alloc(sizeof(http_request_t));
-    req->headers = (char *) tw_alloc(BUFLEN);
+    http_request_t *req = (http_request_t *) tws_calloc(sizeof(http_request_t));
+    req->headers = (char *) tws_calloc(BUFLEN);
 
     sscanf(buf, "%s %s %s", req->method, req->path, req->protocol);
 
@@ -35,25 +36,41 @@ http_request_t *init_http_request(char *buf) {
 
 }
 
+void send_http_response(char *buf, int client_socket, http_request_t *request, FILE *file, char *status) {
+#define NUM_STATUS (sizeof(status_codes) / sizeof(char *))
 
-void http_error(int connectfd, http_request_t *request, char *err, const char *mime) {
+    char *mime;
+    long len;
 
-#define NUM_ERRORS (sizeof(error_codes) / sizeof(char *))
+    mime = get_mime_type(&request->path[1]);
 
-    char *st, err_htm[100], r_header[300];
+    char *st, response_data[BUFLEN];
 
-    for (int i = 0; i < NUM_ERRORS; ++i) {
-        if (strcmp(err, error_codes[i]) == 0) {
-            sprintf(err_htm, error_tmpl, status[i]);
-            st = status[i];
+    for (int i = 0; i < NUM_STATUS; ++i) {
+        if (strcmp(status, status_codes[i]) == 0) {
+            if (strcmp(status, "200") != 0)
+                sprintf(response_data, error_html, status_list[i]);
+            st = (char *) status_list[i];
             break;
         }
+
     }
-    sprintf(r_header, res_header_tmpl, request->protocol, st, get_gmt(), strlen(err_htm), mime);
-    write(connectfd, r_header, strlen(r_header));
-    write(connectfd, err_htm, strlen(err_htm));
-    LOG(request, st, opts, logfd)
+#undef NUM_STATUS
+
+    if (file) {
+        fseek(file, 0L, SEEK_END);
+        len = ftell(file);
+        fseek(file, 0L, SEEK_SET);
+        fread(response_data, 1, len, file);
+        fclose(file);
+    } else
+        len = strlen(response_data);
+
+    sprintf(buf, response_header, request->protocol, st, get_gmt(), len, mime);
+    strcat(buf, response_data);
+    write(client_socket, buf, strlen(buf));
 }
+
 
 void clean_http_request(http_request_t *req) {
     free(req->headers);

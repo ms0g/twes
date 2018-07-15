@@ -3,9 +3,6 @@
 
 #define BUFLEN 8096
 
-/** Response header template */
-extern const char *res_header_tmpl;
-
 typedef struct {
     char method[10];
     char protocol[10];
@@ -19,14 +16,16 @@ typedef struct {
 http_request_t *init_http_request(char *buf);
 
 /**
- * Clean request header
+ *
+ * Clean http request
  */
 void clean_http_request(http_request_t *req);
 
+
 /**
- * Create http error
+ * Send Http response
  */
-void http_error(int connectfd, http_request_t *request, char *err, const char *mime);
+void send_http_response(char *buf, int client_socket, http_request_t *request, FILE *html_file, char *status);
 
 
 #endif //TWES_HTTP_H

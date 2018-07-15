@@ -7,23 +7,22 @@
 
 
 char *get_mime_type(char *filename) {
-    char *dot = strrchr(filename, '.') + 1;
-    if (!dot)
-        return "text/plain";
-    else if (!strcasecmp(dot, "html"))
+    char *dot = strrchr(filename, '.');
+    if (!strcasecmp(dot, ".html"))
         return "text/html";
-    else if (!strcasecmp(dot, "jpg"))
+    else if (!strcasecmp(dot, ".jpg"))
         return "image/jpeg";
-    else if (!strcasecmp(dot, "css"))
+    else if (!strcasecmp(dot, ".css"))
         return "text/css";
-    else if (!strcasecmp(dot, "gif"))
+    else if (!strcasecmp(dot, ".gif"))
         return "image/gif";
-    else if (!strcasecmp(dot, "ico"))
+    else if (!strcasecmp(dot, ".ico"))
         return "image/x-icon";
-    else if (!strcasecmp(dot, "png"))
+    else if (!strcasecmp(dot, ".png"))
         return "image/png";
-    else if (!strcasecmp(dot, "js"))
+    else if (!strcasecmp(dot, ".js"))
         return "application/javascript";
+    return "text/html";
 }
 
 
@@ -38,8 +37,8 @@ char *get_gmt() {
 }
 
 
-void *tw_alloc(size_t size) {
-    void *p = malloc(size);
+void *tws_calloc(size_t size) {
+    void *p = calloc(size, sizeof(char));
     if (!p) {
         perror("unable to allocate memory");
     }
