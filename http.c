@@ -48,8 +48,7 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, F
 
     for (int i = 0; i < NUM_STATUS; ++i) {
         if (strcmp(status, status_codes[i]) == 0) {
-            if (strcmp(status, "200") != 0)
-                sprintf(response_data, error_html, status_list[i]);
+            sprintf(response_data, error_html, status_list[i]);
             st = (char *) status_list[i];
             break;
         }
@@ -57,18 +56,37 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, F
     }
 #undef NUM_STATUS
 
+#define is_image(mime)              \
+strcmp(mime,"image/jpeg") == 0  ||  \
+strcmp(mime,"image/gif") == 0   ||  \
+strcmp(mime,"image/png") == 0   ||  \
+strcmp(mime,"image/x-icon") == 0
+
     if (file) {
+        bzero(response_data, sizeof(response_data));
         fseek(file, 0L, SEEK_END);
         len = ftell(file);
         fseek(file, 0L, SEEK_SET);
-        fread(response_data, 1, len, file);
-        fclose(file);
+        if (!is_image(mime))
+            fread(response_data, 1, len, file);
+
     } else
         len = strlen(response_data);
 
     sprintf(buf, response_header, request->protocol, st, get_gmt(), len, mime);
     strcat(buf, response_data);
     write(client_socket, buf, strlen(buf));
+
+    if (is_image(mime)) {
+        while (!feof(file)) {
+            fread(buf, 1, sizeof(buf), file);
+            write(client_socket, buf, sizeof(buf));
+            bzero(buf, sizeof(buf));
+        }
+    }
+
+    fclose(file);
+#undef is_image
 }
 
 

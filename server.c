@@ -73,13 +73,12 @@ static int catch_signal(int sig, void (*handler)(int)) {
 
 
 void init_server(int port, char *path) {
-    pid_t ch_pid;
-
-    struct sockaddr_in client_addr;
-    size_t address_size = sizeof(client_addr);
-
     if (catch_signal(SIGINT, handle_shutdown) == -1)
         error("Can't set the interrupt handler");
+
+    pid_t ch_pid;
+    struct sockaddr_in client_addr;
+    size_t address_size = sizeof(client_addr);
 
     server_socket = open_socket();
     bind_to_port(server_socket, port);
