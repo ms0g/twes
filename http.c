@@ -42,7 +42,7 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, F
     char *mime = "text/html";
     long len;
 
-    if(file)
+    if (file)
         mime = get_mime_type(&request->path[1]);
 
     char *st, response_data[BUFLEN];
@@ -78,21 +78,16 @@ strcmp(mime,"image/x-icon") == 0
     strcat(buf, response_data);
     write(client_socket, buf, strlen(buf));
 
-    if (file) {
-        if (is_image(mime)) {
-            while (!feof(file)) {
-                fread(buf, 1, sizeof(buf), file);
-                write(client_socket, buf, sizeof(buf));
-                bzero(buf, sizeof(buf));
-            }
+
+    if (is_image(mime)) {
+        while (!feof(file)) {
+            fread(buf, 1, sizeof(buf), file);
+            write(client_socket, buf, sizeof(buf));
+            bzero(buf, sizeof(buf));
         }
-        fclose(file);
     }
-
-
-#undef is_image
 }
-
+#undef is_image
 
 void clean_http_request(http_request_t *req) {
     free(req->headers);

@@ -108,6 +108,7 @@ void init_server(int port, char *path) {
             }
 
             close(client_socket);
+            fclose(file);
             free(buf);
             clean_http_request(request);
             exit(0);
