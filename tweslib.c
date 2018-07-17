@@ -8,6 +8,8 @@
 
 char *get_mime_type(char *filename) {
     char *dot = strrchr(filename, '.');
+    if (!dot)
+        return "text/plain";
     if (!strcasecmp(dot, ".html"))
         return "text/html";
     else if (!strcasecmp(dot, ".jpg"))
@@ -22,7 +24,8 @@ char *get_mime_type(char *filename) {
         return "image/png";
     else if (!strcasecmp(dot, ".js"))
         return "application/javascript";
-    return "text/html";
+    else
+        return "text/plain";
 }
 
 

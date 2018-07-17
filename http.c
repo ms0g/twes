@@ -39,10 +39,11 @@ http_request_t *init_http_request(char *buf) {
 void send_http_response(char *buf, int client_socket, http_request_t *request, FILE *file, char *status) {
 #define NUM_STATUS (sizeof(status_codes) / sizeof(char *))
 
-    char *mime;
+    char *mime = "text/html";
     long len;
 
-    mime = get_mime_type(&request->path[1]);
+    if(file)
+        mime = get_mime_type(&request->path[1]);
 
     char *st, response_data[BUFLEN];
 
@@ -77,15 +78,18 @@ strcmp(mime,"image/x-icon") == 0
     strcat(buf, response_data);
     write(client_socket, buf, strlen(buf));
 
-    if (is_image(mime)) {
-        while (!feof(file)) {
-            fread(buf, 1, sizeof(buf), file);
-            write(client_socket, buf, sizeof(buf));
-            bzero(buf, sizeof(buf));
+    if (file) {
+        if (is_image(mime)) {
+            while (!feof(file)) {
+                fread(buf, 1, sizeof(buf), file);
+                write(client_socket, buf, sizeof(buf));
+                bzero(buf, sizeof(buf));
+            }
         }
+        fclose(file);
     }
 
-    fclose(file);
+
 #undef is_image
 }
 
