@@ -16,7 +16,7 @@ void error(char *msg) {
 
 
 static void read_in(int client_socket, char *buf) {
-    int c;
+    ssize_t c;
     if ((c = recv(client_socket, buf, BUFLEN, 0)) >= 0) {
         if (c == 0)
             error("peer has closed");
@@ -108,7 +108,8 @@ void init_server(int port, char *path) {
             }
 
             close(client_socket);
-            fclose(file);
+            if (file)
+                fclose(file);
             free(buf);
             clean_http_request(request);
             exit(0);

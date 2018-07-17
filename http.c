@@ -20,7 +20,7 @@ static const char *status_list[] = {
 };
 
 static const char *error_html = "<html><body><h1>%s</h1></body></html>";
-static const char *response_header = "%s %s\r\nServer: twes/1.0\r\nDate: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n";
+static const char *response_header = "%s %s\r\nServer: twes/0.1\r\nDate: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n";
 
 http_request_t *init_http_request(char *buf) {
     http_request_t *req = (http_request_t *) tws_calloc(sizeof(http_request_t));
@@ -41,10 +41,6 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, F
 
     char *mime = "text/html";
     long len;
-
-    if (file)
-        mime = get_mime_type(&request->path[1]);
-
     char *st, response_data[BUFLEN];
 
     for (int i = 0; i < NUM_STATUS; ++i) {
@@ -65,13 +61,15 @@ strcmp(mime,"image/x-icon") == 0
 
     if (file) {
         bzero(response_data, sizeof(response_data));
+        mime = get_mime_type(&request->path[1]);
+
         fseek(file, 0L, SEEK_END);
         len = ftell(file);
         fseek(file, 0L, SEEK_SET);
         if (!is_image(mime))
             fread(response_data, 1, len, file);
-
-    } else
+    }
+    else
         len = strlen(response_data);
 
     sprintf(buf, response_header, request->protocol, st, get_gmt(), len, mime);
@@ -79,7 +77,7 @@ strcmp(mime,"image/x-icon") == 0
     write(client_socket, buf, strlen(buf));
 
 
-    if (is_image(mime)) {
+    if (file && is_image(mime)) {
         while (!feof(file)) {
             fread(buf, 1, sizeof(buf), file);
             write(client_socket, buf, sizeof(buf));
