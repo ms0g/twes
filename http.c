@@ -54,11 +54,11 @@ http_request_t *init_http_request(char *buf, char *path) {
 
 
     if (strcmp(res, "/") == 0)
-        strcpy(res, "/index.html");
+        strcpy(res, "index.html");
 
     // append the res at the end of the resource
     request->resource = (char *) realloc(request->resource, strlen(request->resource) + sizeof(res));
-    strcat(request->resource, &res[1]);
+    strcat(request->resource, &res[0]);
 
     return request;
 
@@ -99,9 +99,9 @@ strcmp(mime,"image/x-icon") == 0
         len = ftell(file);
         fseek(file, 0L, SEEK_SET);
         // reallocate the response buffer for the size of the file
-        response_data = (char *) realloc(response_data, len + 1);
+        response_data = (char *) realloc(response_data, (size_t) (len + 1));
         if (!is_image(mime))
-            fread(response_data, 1, len, file);
+            fread(response_data, 1, (size_t) len, file);
     } else
         len = strlen(response_data);
 
