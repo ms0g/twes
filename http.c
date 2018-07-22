@@ -5,6 +5,8 @@
 #include "http.h"
 #include "tweslib.h"
 
+#define VERSION "0.1"
+
 static const char *status_codes[] = {
         "200",
         "404",
@@ -20,19 +22,45 @@ static const char *status_list[] = {
 };
 
 static const char *error_html = "<html><body><h1>%s</h1></body></html>";
-static const char *response_header = "%s %s\r\nServer: twes/0.1\r\nDate: %s\r\nContent-Length: %ld\r\nContent-Type: %s\r\n\r\n";
+static const char *response_header = "%s %s\r\n"
+                                     "Server: twes/"VERSION
+                                     "\r\n"
+                                     "Date: %s\r\n"
+                                     "Content-Length: %ld\r\n"
+                                     "Content-Type: %s\r\n\r\n";
 
-http_request_t *init_http_request(char *buf) {
-    http_request_t *req = (http_request_t *) tws_calloc(sizeof(http_request_t));
-    req->headers = (char *) tws_calloc(BUFLEN);
 
-    sscanf(buf, "%s %s %s", req->method, req->path, req->protocol);
+http_request_t *init_http_request(char *buf, char *path) {
+    char res[100];
 
-    if (strcmp(req->path, "/") == 0)
-        strcpy(req->path, "/index.html");
+    // find the start and end pointer of the headers
+    const char *pStart = strstr(buf, "\r\n");
+    const char *pEnd = strstr(buf, "\r\n\r\n");
+    // calculate the needed size for the headers
+    size_t size = pEnd - &pStart[2];
 
-    strcpy(req->headers, buf);
-    return req;
+    // create request struct
+    http_request_t *request = (http_request_t *) tws_malloc(sizeof(http_request_t));
+    request->resource = strdup(path);
+    // allocate the headers. +1 for null-termination
+    request->headers = (char *) tws_malloc(size + 1);
+    strncpy(request->headers, &pStart[2], size);
+
+    // parse the request line. e.g GET / HTTP/1.1\r\n
+    buf = strtok(buf, "\r\n");
+    strcpy(request->method, strtok(buf, " "));
+    strcpy(res, strtok(NULL, " "));
+    strcpy(request->version, strtok(NULL, " "));
+
+
+    if (strcmp(res, "/") == 0)
+        strcpy(res, "/index.html");
+
+    // append the res at the end of the resource
+    request->resource = (char *) realloc(request->resource, strlen(request->resource) + sizeof(res));
+    strcat(request->resource, &res[1]);
+
+    return request;
 
 }
 
@@ -41,7 +69,10 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, F
 
     char *mime = "text/html";
     long len;
-    char *st, response_data[BUFLEN];
+    char *st;
+
+    // allocate the buffer for the response
+    char *response_data = (char *) tws_malloc(100 * sizeof(char));
 
     for (int i = 0; i < NUM_STATUS; ++i) {
         if (strcmp(status, status_codes[i]) == 0) {
@@ -49,7 +80,6 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, F
             st = (char *) status_list[i];
             break;
         }
-
     }
 #undef NUM_STATUS
 
@@ -60,36 +90,42 @@ strcmp(mime,"image/png") == 0   ||  \
 strcmp(mime,"image/x-icon") == 0
 
     if (file) {
+        // clean the response buffer
         bzero(response_data, sizeof(response_data));
-        mime = get_mime_type(&request->path[1]);
+        mime = get_mime_type(&request->resource[1]);
 
+        // get the file size
         fseek(file, 0L, SEEK_END);
         len = ftell(file);
         fseek(file, 0L, SEEK_SET);
+        // reallocate the response buffer for the size of the file
+        response_data = (char *) realloc(response_data, len + 1);
         if (!is_image(mime))
             fread(response_data, 1, len, file);
-    }
-    else
+    } else
         len = strlen(response_data);
 
-    sprintf(buf, response_header, request->protocol, st, get_gmt(), len, mime);
+    // create the response header and send
+    sprintf(buf, response_header, request->version, st, get_gmt(), len, mime);
     strcat(buf, response_data);
     write(client_socket, buf, strlen(buf));
 
-
+    // images must be sent in chunks
     if (file && is_image(mime)) {
         while (!feof(file)) {
-            fread(buf, 1, sizeof(buf), file);
-            write(client_socket, buf, sizeof(buf));
-            bzero(buf, sizeof(buf));
+            fread(response_data, 1, sizeof(response_data), file);
+            write(client_socket, response_data, sizeof(response_data));
+            bzero(buf, sizeof(response_data));
         }
     }
+    free(response_data);
 }
+
 #undef is_image
 
 void clean_http_request(http_request_t *req) {
     free(req->headers);
-    req->headers = NULL;
+    free(req->resource);
     free(req);
     req = NULL;
 }

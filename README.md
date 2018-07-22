@@ -1,5 +1,5 @@
 # twes
-Just supports GET method and transmits static page. 
+Serves static files.
 ### Prerequisites
 + [CMake](http://www.cmake.org "CMake project page") (>= 3.8)
 + [GCC](http://gcc.gnu.org "GCC home") (>= 5.4.0)

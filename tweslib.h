@@ -20,6 +20,6 @@ char *get_gmt();
 /**
  * Allocate
  */
-void *tws_calloc(size_t size);
+void *tws_malloc(size_t size);
 
 #endif //TWES_LIB_H

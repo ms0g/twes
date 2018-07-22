@@ -40,8 +40,8 @@ char *get_gmt() {
 }
 
 
-void *tws_calloc(size_t size) {
-    void *p = calloc(size, sizeof(char));
+void *tws_malloc(size_t num) {
+    void *p = malloc(num);
     if (!p) {
         perror("unable to allocate memory");
     }

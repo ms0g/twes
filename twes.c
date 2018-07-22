@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    opts = (options_t){.daemonize=daemonize};
+    opts = (options_t) {.daemonize=daemonize};
 
     if (port <= 0 || argv[optind] == NULL || strlen(argv[optind]) == 0)
         echo_usage();
@@ -42,17 +42,15 @@ int main(int argc, char *argv[]) {
     if (opts.daemonize)
         init_daemonizing();
 
-    char *duparg = strdup(argv[optind]);
-    duparg = (char*)realloc(duparg, BUFLEN*sizeof(char));
+    init_server(port, argv[optind]);
 
-    init_server(port, duparg);
     return 0;
 }
 
 
-void echo_usage(void){
+void echo_usage(void) {
     const char *usage = "Usage: ./twes -p [port] path/html/files\nOptions: -d [run as daemon]\n\t";
-    printf("%s\n",usage);
+    printf("%s\n", usage);
     exit(1);
 }
 

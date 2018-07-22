@@ -80,38 +80,46 @@ void init_server(int port, char *path) {
     struct sockaddr_in client_addr;
     size_t address_size = sizeof(client_addr);
 
+    // create socket
     server_socket = open_socket();
+    // bind the socket to port
     bind_to_port(server_socket, port);
 
+    // listen
     if (listen(server_socket, 10) == -1)
         error("Can't listen");
 
-    buf = (char *) tws_calloc(BUFLEN);
+    buf = (char *) tws_malloc(BUFLEN * sizeof(char));
 
     while (1) {
+        // wait for connection.If it happens,create a new socket and keep on communication over it
         client_socket = accept(server_socket, (struct sockaddr *) &client_addr, (socklen_t *) &address_size);
         if (client_socket == -1)
             error("Can’t open secondary socket");
 
+        // create a child process
         if ((ch_pid = fork()) == 0) {
+
+            // read bytes into buf from socket
             read_in(client_socket, buf);
 
-            request = init_http_request(buf);
-            strcat(path, &request->path[1]);
+            // create request struct
+            request = init_http_request(buf, path);
 
+            // send the response
             if (strcmp(&request->method[0], "GET") != 0)
                 send_http_response(buf, client_socket, request, NULL, "405");
-            else if ((file = fopen(path, "rb")) == NULL)
+            else if ((file = fopen(request->resource, "rb")) == NULL)
                 send_http_response(buf, client_socket, request, NULL, "404");
             else {
                 send_http_response(buf, client_socket, request, file, "200");
             }
 
+            // always clean
             close(client_socket);
             if (file)
                 fclose(file);
             free(buf);
-            free(path);
             clean_http_request(request);
             exit(0);
         } else if (ch_pid < 0)
