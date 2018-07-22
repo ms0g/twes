@@ -15,7 +15,6 @@ int main(int argc, char *argv[]) {
     int opt;
     int port = 0;
     int daemonize = 0;
-    char path[BUFLEN];
 
     while ((opt = getopt(argc, argv, "dhp:")) != -1) {
         switch (opt) {
@@ -36,7 +35,6 @@ int main(int argc, char *argv[]) {
     }
 
     opts = (options_t){.daemonize=daemonize};
-    strcpy(path, argv[optind]);
 
     if (port <= 0 || argv[optind] == NULL || strlen(argv[optind]) == 0)
         echo_usage();
@@ -44,7 +42,10 @@ int main(int argc, char *argv[]) {
     if (opts.daemonize)
         init_daemonizing();
 
-    init_server(port, path);
+    char *duparg = strdup(argv[optind]);
+    duparg = (char*)realloc(duparg, BUFLEN*sizeof(char));
+
+    init_server(port, duparg);
     return 0;
 }
 

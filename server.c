@@ -111,6 +111,7 @@ void init_server(int port, char *path) {
             if (file)
                 fclose(file);
             free(buf);
+            free(path);
             clean_http_request(request);
             exit(0);
         } else if (ch_pid < 0)
