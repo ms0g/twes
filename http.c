@@ -54,11 +54,11 @@ http_request_t *init_http_request(char *buf, char *path) {
 
 
     if (strcmp(res, "/") == 0)
-        strcpy(res, "index.html");
+        strcpy(res, "/index.html");
 
     // append the res at the end of the resource
     request->resource = (char *) realloc(request->resource, strlen(request->resource) + sizeof(res));
-    strcat(request->resource, &res[0]);
+    strcat(request->resource, &res[1]);
 
     return request;
 
