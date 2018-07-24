@@ -50,7 +50,7 @@ http_request_t *init_http_request(char *buf, char *path) {
     buf = strtok(buf, "\r\n");
     strcpy(request->method, strtok(buf, " "));
     strcpy(res, strtok(NULL, " "));
-    strcpy(request->version, strtok(NULL, " "));
+    strcpy(request->protocol, strtok(NULL, " "));
 
 
     if (strcmp(res, "/") == 0)
@@ -106,7 +106,7 @@ strcmp(mime,"image/x-icon") == 0
         len = strlen(response_data);
 
     // create the response header and send
-    sprintf(buf, response_header, request->version, st, get_gmt(), len, mime);
+    sprintf(buf, response_header, request->protocol, st, get_gmt(), len, mime);
     strcat(buf, response_data);
     write(client_socket, buf, strlen(buf));
 

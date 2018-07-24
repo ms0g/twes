@@ -34,7 +34,7 @@ void error(char *msg) __NORETURN;
 /**
  * Shutdown server
  */
-static void handle_shutdown(int sig) __NORETURN;
+static void harakiri(int sig) __NORETURN;
 
 /**
  * Read the socket

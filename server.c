@@ -48,7 +48,7 @@ static void bind_to_port(int server_socket, int port) {
 }
 
 
-static void handle_shutdown(int sig) {
+static void harakiri(int sig) {
     if (server_socket) close(server_socket);
     if (client_socket) close(client_socket);
     if (file) fclose(file);
@@ -73,7 +73,7 @@ static int catch_signal(int sig, void (*handler)(int)) {
 
 
 void init_server(int port, char *path) {
-    if (catch_signal(SIGINT, handle_shutdown) == -1)
+    if (catch_signal(SIGINT, harakiri) == -1)
         error("Can't set the interrupt handler");
 
     pid_t ch_pid;

@@ -5,7 +5,7 @@
 
 typedef struct {
     char method[10];
-    char version[10];
+    char protocol[10];
     char *resource;
     char *headers;
 } http_request_t;
