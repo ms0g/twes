@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include "http.h"
-#include "tweslib.h"
+#include "utils.h"
 
 typedef struct {
     int daemonize;
@@ -15,26 +15,15 @@ options_t opts;
 /** Log file */
 FILE *logfd;
 
-FILE *file;
-
-/** Socket and file descriptors */
-int server_socket, client_socket;
-
-/** Buffer keeping request headers */
-char *buf;
-
-/** Http Request */
-http_request_t *request;
-
 /**
  * System error
  */
-void error(char *msg) __NORETURN;
+void error(char *msg) __attribute__ ((noreturn));
 
 /**
  * Shutdown server
  */
-static void harakiri(int sig) __NORETURN;
+static void harakiri(int sig) __attribute__ ((noreturn));
 
 /**
  * Read the socket
@@ -60,6 +49,11 @@ static int catch_signal(int sig, void (*handler)(int));
  * Initialize server
  */
 void init_server(int port, char *path);
+
+/**
+ * Check status
+ */
+static char *check_status(http_request_t *request);
 
 #endif //TWES_SERVER_H
 

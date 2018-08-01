@@ -5,11 +5,46 @@
 #include <unistd.h>
 #include "server.h"
 
-/** print usage */
-void echo_usage(void) __NORETURN;
+__attribute__ ((noreturn))
+void echo_usage(void) {
+    const char *usage = "Usage: ./twes -p [port] path/html/files\nOptions: -d [run as daemon]\n\t";
+    printf("%s\n", usage);
+    exit(1);
+}
 
-/** run as daemon  */
-void init_daemonizing(void);
+
+void init_daemonizing(void) {
+    char cwd[BUFLEN];
+    pid_t chpid;
+
+    if ((chpid = fork()) > 0)
+        // Kill parent process
+        exit(EXIT_SUCCESS);
+    else if (chpid < 0)
+        exit(EXIT_FAILURE);
+
+    // Change the file mode mask
+    umask(0);
+    // Get current working dir
+    getcwd(cwd, sizeof(cwd));
+    strcat(cwd, "/twes.log");
+
+    // Create log file
+    logfd = fopen(cwd, "w+");
+
+    // Set new session id for child processs
+    if (setsid() < 0)
+        exit(EXIT_FAILURE);
+
+    //Change current working dir
+    if (chdir("/") < 0)
+        exit(EXIT_FAILURE);
+
+    // Close out the standard file descriptors
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+}
 
 int main(int argc, char *argv[]) {
     int opt;
@@ -48,41 +83,5 @@ int main(int argc, char *argv[]) {
 }
 
 
-void echo_usage(void) {
-    const char *usage = "Usage: ./twes -p [port] path/html/files\nOptions: -d [run as daemon]\n\t";
-    printf("%s\n", usage);
-    exit(1);
-}
 
-void init_daemonizing(void) {
-    char cwd[BUFLEN];
-    pid_t chpid;
 
-    if ((chpid = fork()) > 0)
-        // Kill parent process
-        exit(EXIT_SUCCESS);
-    else if (chpid < 0)
-        exit(EXIT_FAILURE);
-
-    // Change the file mode mask
-    umask(0);
-    // Get current working dir
-    getcwd(cwd, sizeof(cwd));
-    strcat(cwd, "/twes.log");
-
-    // Create log file
-    logfd = fopen(cwd, "w+");
-
-    // Set new session id for child processs
-    if (setsid() < 0)
-        exit(EXIT_FAILURE);
-
-    //Change current working dir
-    if (chdir("/") < 0)
-        exit(EXIT_FAILURE);
-
-    // Close out the standard file descriptors
-    close(STDIN_FILENO);
-    close(STDOUT_FILENO);
-    close(STDERR_FILENO);
-}

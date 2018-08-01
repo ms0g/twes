@@ -3,10 +3,11 @@
 #include <strings.h>
 #include <string.h>
 #include <time.h>
-#include "tweslib.h"
+#include <sys/stat.h>
+#include "utils.h"
 
 
-char *get_mime_type(char *filename) {
+char *get_mime_type(const char *filename) {
     char *dot = strrchr(filename, '.');
     if (!dot)
         return "text/plain";
@@ -46,4 +47,13 @@ void *tws_malloc(size_t num) {
         perror("unable to allocate memory");
     }
     return p;
+}
+
+int fd_isreg(const char *filename) {
+    struct stat st;
+
+    if (stat(filename, &st))
+        return -1;
+
+    return (st.st_mode & S_IFMT) == S_IFREG ? 0 : -1;
 }

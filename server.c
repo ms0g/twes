@@ -9,12 +9,6 @@
 #include "server.h"
 
 
-void error(char *msg) {
-    fprintf(OUT(logfd, opts), "%s: %s\n", msg, strerror(errno));
-    exit(1);
-}
-
-
 static void read_in(int client_socket, char *buf) {
     ssize_t c;
     if ((c = recv(client_socket, buf, BUFLEN, 0)) >= 0) {
@@ -48,21 +42,6 @@ static void bind_to_port(int server_socket, int port) {
 }
 
 
-static void harakiri(int sig) {
-    if (server_socket) close(server_socket);
-    if (client_socket) close(client_socket);
-    if (file) fclose(file);
-    if (logfd) fclose(logfd);
-    if (request) clean_http_request(request);
-    if (buf) {
-        free(buf);
-        buf = NULL;
-    }
-
-    exit(0);
-}
-
-
 static int catch_signal(int sig, void (*handler)(int)) {
     struct sigaction action;
     action.sa_handler = handler;
@@ -71,6 +50,20 @@ static int catch_signal(int sig, void (*handler)(int)) {
     return sigaction(sig, &action, NULL);
 }
 
+
+static char *check_status(http_request_t *request) {
+    if (strcmp(&request->method[0], "GET") != 0)
+        return "405";
+    else if (fd_isreg(request->file.path) < 0)
+        return "404";
+    return "200";
+
+
+}
+
+http_request_t *request;
+int server_socket, client_socket;
+char *buf;
 
 void init_server(int port, char *path) {
     if (catch_signal(SIGINT, harakiri) == -1)
@@ -106,19 +99,17 @@ void init_server(int port, char *path) {
             // create request struct
             request = init_http_request(buf, path);
 
-            // send the response
-            if (strcmp(&request->method[0], "GET") != 0)
-                send_http_response(buf, client_socket, request, NULL, "405");
-            else if ((file = fopen(request->resource, "rb")) == NULL)
-                send_http_response(buf, client_socket, request, NULL, "404");
-            else {
-                send_http_response(buf, client_socket, request, file, "200");
-            }
+            char *status = check_status(request);
+            if (strcmp(status, "200") == 0)
+                request->file.fd = fopen(request->file.path, "rb");
+
+            send_http_response(buf, client_socket, request, status);
+
 
             // always clean
             close(client_socket);
-            if (file)
-                fclose(file);
+            if (request->file.fd)
+                fclose(request->file.fd);
             free(buf);
             clean_http_request(request);
             exit(0);
@@ -134,4 +125,22 @@ void init_server(int port, char *path) {
 }
 
 
+static void harakiri(int sig) {
+    if (server_socket) close(server_socket);
+    if (client_socket) close(client_socket);
+    if (logfd) fclose(logfd);
+    if (request) clean_http_request(request);
+    if (buf) {
+        free(buf);
+        buf = NULL;
+    }
+
+    exit(0);
+}
+
+
+void error(char *msg) {
+    fprintf(OUT(logfd, opts), "%s: %s\n", msg, strerror(errno));
+    exit(1);
+}
 
