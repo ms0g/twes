@@ -32,6 +32,7 @@ static const char *response_header = "%s %s\r\n"
 
 http_request_t *init_http_request(char *buf, char *path) {
     char res[100];
+    http_request_t *request;
 
     // find the start and end pointer of the headers
     const char *pStart = strstr(buf, "\r\n");
@@ -40,11 +41,12 @@ http_request_t *init_http_request(char *buf, char *path) {
     size_t size = pEnd - &pStart[2];
 
     // create request struct
-    http_request_t *request = (http_request_t *) tws_malloc(sizeof(http_request_t));
+    ALLOC(request, http_request_t, sizeof(http_request_t))
+
     request->file.path = strdup(path);
 
     // allocate the headers. +1 for null-termination
-    request->headers = (char *) tws_malloc(size + 1);
+    ALLOC(request->headers, char, (size + 1))
     strncpy(request->headers, &pStart[2], size);
 
     // parse the request line. e.g GET / HTTP/1.1\r\n
@@ -70,9 +72,10 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, c
     char *mime = "text/html";
     long len;
     char *st;
+    char *response_data;
 
     // allocate the buffer for the response
-    char *response_data = (char *) tws_malloc(100 * sizeof(char));
+    ALLOC(response_data, char, 100 * sizeof(char))
 
     for (int i = 0; i < NUM_STATUS; ++i) {
         if (strcmp(status, status_codes[i]) == 0) {

@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
     if (listen(server_socket, 10) == -1)
         error("Can't listen");
 
-    buf = (char *) tws_malloc(BUFLEN * sizeof(char));
+    ALLOC(buf, char, BUFLEN * sizeof(char))
 
     while (1) {
         // wait for connection.If it happens,create a new socket and keep on communication over it
@@ -157,8 +157,6 @@ int main(int argc, char *argv[]) {
 
             // always clean
             close(client_socket);
-            if (request->file.fd)
-                fclose(request->file.fd);
             free(buf);
             clean_http_request(request);
             exit(0);

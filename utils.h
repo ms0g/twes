@@ -3,6 +3,10 @@
 
 #define OUT(fd, opts) ((opts).daemonize ? (fd):stdout)
 
+#define ALLOC(buffer, type, size)               \
+if(((buffer) = (type *) malloc(size)) == NULL)  \
+    perror("unable to allocate memory");
+
 
 /**
  * Get mime type of file.
@@ -14,11 +18,6 @@ char *get_mime_type(const char *);
  * Get Greenwich Mean Time
  */
 char *get_gmt();
-
-/**
- * Allocate
- */
-void *tws_malloc(size_t);
 
 /**
  * Check out if it's a regular file

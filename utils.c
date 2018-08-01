@@ -41,14 +41,6 @@ char *get_gmt() {
 }
 
 
-void *tws_malloc(size_t size) {
-    void *p = malloc(size);
-    if (!p) {
-        perror("unable to allocate memory");
-    }
-    return p;
-}
-
 int fd_isreg(const char *filename) {
     struct stat st;
 
