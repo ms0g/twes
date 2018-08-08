@@ -1,18 +1,24 @@
 #ifndef TWES_HTTP_H
 #define TWES_HTTP_H
 
-#define BUFLEN 1024
 
 typedef struct {
     char *path;
     FILE *fd;
 } file_t;
 
+typedef struct header_s {
+    char *key;
+    char *value;
+    struct header_s *next;
+} header_t;
+
 typedef struct {
     char method[10];
     char protocol[10];
+    char resource[100];
     file_t file;
-    char *headers;
+    header_t *headers;
 } http_request_t;
 
 /**

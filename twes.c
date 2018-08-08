@@ -8,15 +8,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdio.h>
+#include <assert.h>
 #include "http.h"
 #include "utils.h"
 
-
-typedef struct {
-    int daemonize;
-} options_t;
-
-options_t opts;
+#define BUFLEN 1024
 
 static void error(char *) __attribute__ ((noreturn));
 static void harakiri(int) __attribute__ ((noreturn));
@@ -54,7 +50,7 @@ static void bind_to_port(int server_socket, int port) {
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
     int reuse = 1;
-    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &reuse, sizeof(int)) == -1)
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(int)) == -1)
         error("Can't set the reuse option on the server_socket");
 
     if (bind(server_socket, (struct sockaddr *) &server_address, sizeof(server_address)) == -1)
@@ -80,6 +76,12 @@ static char *get_status(http_request_t *request) {
 }
 
 
+typedef struct {
+    int daemonize;
+} options_t;
+
+options_t opts;
+
 http_request_t *request;
 FILE *logfd;
 int server_socket, client_socket;
@@ -90,7 +92,7 @@ int main(int argc, char *argv[]) {
     int port = 0;
     int daemonize = 0;
 
-    while ((opt = getopt(argc, argv, "dhp:")) != -1) {
+    while ((opt = getopt(argc, argv, "dvhp:")) != -1) {
         switch (opt) {
             // -h
             case 'h':
@@ -109,6 +111,8 @@ int main(int argc, char *argv[]) {
     }
 
     opts = (options_t) {.daemonize=daemonize};
+
+    assert(port);
 
     if (port <= 0 || argv[optind] == NULL || strlen(argv[optind]) == 0)
         echo_usage();

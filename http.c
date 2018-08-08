@@ -30,37 +30,35 @@ static const char *response_header = "%s %s\r\n"
                                      "Content-Type: %s\r\n\r\n";
 
 
+static void clean_http_headers(header_t **headers);
+static void insert_headers(header_t **, char *, char *);
+static void parse_headers(char *, http_request_t *);
+static char *get_header_key(char *);
+static void parse_request_line(char *, http_request_t *);
+
+
 http_request_t *init_http_request(char *buf, char *path) {
     char res[100];
+    bzero(res,100);
     http_request_t *request;
-
-    // find the start and end pointer of the headers
-    const char *pStart = strstr(buf, "\r\n");
-    const char *pEnd = strstr(buf, "\r\n\r\n");
-    // calculate the needed size for the headers
-    size_t size = pEnd - &pStart[2];
 
     // create request struct
     ALLOC(request, http_request_t, sizeof(http_request_t))
-
     request->file.path = strdup(path);
 
-    // allocate the headers. +1 for null-termination
-    ALLOC(request->headers, char, (size + 1))
-    strncpy(request->headers, &pStart[2], size);
+    // parse the request header fields. e.g.Accept-Language: en
+    parse_headers(buf, request);
 
     // parse the request line. e.g GET / HTTP/1.1\r\n
-    buf = strtok(buf, "\r\n");
-    strcpy(request->method, strtok(buf, " "));
-    strcpy(res, strtok(NULL, " "));
-    strcpy(request->protocol, strtok(NULL, " "));
+    parse_request_line(buf, request);
 
-
-    if (strcmp(res, "/") == 0)
+    if (strcmp(request->resource, "/") == 0)
         strcpy(res, "/index.html");
     // append the res at the end of the resource
-    request->file.path = (char *) realloc(request->file.path, strlen(request->file.path) + strlen(res) + 1);
-    strcat(request->file.path, &res[1]);
+    request->file.path = (char *) realloc(request->file.path,
+                                          strlen(request->file.path) + (
+                                          strlen(res) != 0 ? strlen(res):strlen(request->resource)) + 1);
+    strcat(request->file.path, strlen(res) != 0 ? &res[1]:&request->resource[1]);
 
     return request;
 
@@ -109,7 +107,7 @@ strcmp(mime,"image/x-icon") == 0
         len = strlen(response_data);
 
     // create the response header and send
-    sprintf(buf, response_header, request->protocol, st, get_gmt(), len, mime);
+    sprintf(buf, response_header, request->protocol, st, get_time(GMT), len, mime);
     strcat(buf, response_data);
     write(client_socket, buf, strlen(buf));
 
@@ -126,11 +124,74 @@ strcmp(mime,"image/x-icon") == 0
 
 #undef is_image
 
+static void parse_request_line(char *buf, http_request_t *request) {
+    strcpy(request->method, strtok(buf, " "));
+    strcpy(request->resource, strtok(NULL, " "));
+    strcpy(request->protocol, strtok(NULL, " "));
+}
+
+
+static void parse_headers(char *buf, http_request_t *request) {
+    char *found = strtok(buf, "\r\n");
+    while (found != NULL) {
+        char *pos = strchr(found, ':');
+        if (pos) {
+            char *key = get_header_key(found);
+            char *value = strdup(&pos[2]);
+            insert_headers(&request->headers, key, value);
+        }
+        found = strtok(NULL, "\r\n");
+    }
+
+}
+
+
+static void insert_headers(header_t **headers, char *key, char *value) {
+    if (*headers == NULL) {
+        *headers = (header_t *) malloc(sizeof(header_t));
+        (*headers)->key = key;
+        (*headers)->value = value;
+    } else {
+        insert_headers(&(*headers)->next, key, value);
+    }
+}
+
+static char *get_header_key(char *str) {
+    int ind;
+    size_t size = strlen(str);
+
+    for (int i = 0; i < strlen(str); ++i) {
+        if (str[i] == ':') {
+            ind = i;
+            break;
+        }
+    }
+
+    char key[size];
+    bzero(key, size);
+    strncpy(key, str, (size_t) ind);
+    return strdup(key);
+
+}
+
+
 void clean_http_request(http_request_t *request) {
-    free(request->headers);
+    clean_http_headers(&request->headers);
     free(request->file.path);
     if (request->file.fd)
         fclose(request->file.fd);
     free(request);
     request = NULL;
+}
+
+
+static void clean_http_headers(header_t **headers) {
+    if (*headers == NULL)
+        return;
+    clean_http_headers(&(*headers)->next);
+    free((*headers)->key);
+    free((*headers)->value);
+    free(*headers);
+    *headers = NULL;
+
 }
