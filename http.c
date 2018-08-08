@@ -148,7 +148,7 @@ static void parse_headers(char *buf, http_request_t *request) {
 
 static void insert_headers(header_t **headers, char *key, char *value) {
     if (*headers == NULL) {
-        *headers = (header_t *) malloc(sizeof(header_t));
+        ALLOC(*headers, header_t, sizeof(header_t))
         (*headers)->key = key;
         (*headers)->value = value;
     } else {
