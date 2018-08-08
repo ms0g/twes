@@ -30,7 +30,7 @@ static const char *response_header = "%s %s\r\n"
                                      "Content-Type: %s\r\n\r\n";
 
 
-static void clean_http_headers(header_t **headers);
+static void clean_http_headers(header_t **);
 static void insert_headers(header_t **, char *, char *);
 static void parse_headers(char *, http_request_t *);
 static char *get_header_key(char *);
@@ -39,7 +39,7 @@ static void parse_request_line(char *, http_request_t *);
 
 http_request_t *init_http_request(char *buf, char *path) {
     char res[100];
-    bzero(res,100);
+    bzero(res, 100);
     http_request_t *request;
 
     // create request struct
@@ -57,8 +57,8 @@ http_request_t *init_http_request(char *buf, char *path) {
     // append the res at the end of the resource
     request->file.path = (char *) realloc(request->file.path,
                                           strlen(request->file.path) + (
-                                          strlen(res) != 0 ? strlen(res):strlen(request->resource)) + 1);
-    strcat(request->file.path, strlen(res) != 0 ? &res[1]:&request->resource[1]);
+                                                  strlen(res) != 0 ? strlen(res) : strlen(request->resource)) + 1);
+    strcat(request->file.path, strlen(res) != 0 ? &res[1] : &request->resource[1]);
 
     return request;
 
