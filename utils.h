@@ -7,6 +7,11 @@
 if(((buffer) = (type *) malloc(size)) == NULL)  \
     perror("unable to allocate memory");
 
+typedef enum time_type {
+    GMT,
+    CURRENT
+} type ;
+
 
 /**
  * Get mime type of file.
@@ -17,7 +22,7 @@ char *get_mime_type(const char *);
 /**
  * Get Greenwich Mean Time
  */
-char *get_gmt();
+char *get_time(type);
 
 /**
  * Check out if it's a regular file

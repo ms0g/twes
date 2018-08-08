@@ -30,13 +30,22 @@ char *get_mime_type(const char *filename) {
 }
 
 
-char *get_gmt() {
-    struct tm *gm;
+char *get_time(type t) {
+    struct tm *t_info;
     static char date[50];
 
-    time_t tm = time(NULL);
-    gm = gmtime(&tm);
-    strftime(date, sizeof(date), "%a, %d %b %Y %T GMT", gm);
+    time_t rawtime = time(NULL);
+    switch (t) {
+        case GMT:
+            t_info = gmtime(&rawtime);
+            strftime(date, sizeof(date), "%a, %d %b %Y %T GMT", t_info);
+            break;
+        case CURRENT:
+            t_info = localtime(&rawtime);
+            strftime(date, sizeof(date), "%d/%b/%Y:%T", t_info);
+            break;
+    }
+
     return date;
 }
 
@@ -49,3 +58,8 @@ int fd_isreg(const char *filename) {
 
     return (st.st_mode & S_IFMT) == S_IFREG ? 0 : -1;
 }
+
+
+
+
+
