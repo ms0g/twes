@@ -43,7 +43,7 @@ http_request_t *init_http_request(char *buf, char *path) {
     http_request_t *request;
 
     // create request struct
-    ALLOC(request, http_request_t, sizeof(http_request_t))
+    request = (http_request_t *) malloc(sizeof(http_request_t));
     request->file.path = strdup(path);
 
     // parse the request header fields. e.g.Accept-Language: en
@@ -56,8 +56,9 @@ http_request_t *init_http_request(char *buf, char *path) {
         strcpy(res, "/index.html");
     // append the res at the end of the resource
     request->file.path = (char *) realloc(request->file.path,
-                                          strlen(request->file.path) + (
-                                                  strlen(res) != 0 ? strlen(res) : strlen(request->resource)) + 1);
+                                          strlen(request->file.path) +
+                                          (strlen(res) != 0 ? strlen(res) : strlen(request->resource)) + 1);
+
     strcat(request->file.path, strlen(res) != 0 ? &res[1] : &request->resource[1]);
 
     return request;
@@ -68,12 +69,13 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, c
 #define NUM_STATUS (sizeof(status_codes) / sizeof(char *))
 
     char *mime = "text/html";
+    char *response_data;
     long len;
     char *st;
-    char *response_data;
+
 
     // allocate the buffer for the response
-    ALLOC(response_data, char, 100 * sizeof(char))
+    response_data = (char *) calloc(100, sizeof(char));
 
     for (int i = 0; i < NUM_STATUS; ++i) {
         if (strcmp(status, status_codes[i]) == 0) {
@@ -148,7 +150,7 @@ static void parse_headers(char *buf, http_request_t *request) {
 
 static void insert_headers(header_t **headers, char *key, char *value) {
     if (*headers == NULL) {
-        ALLOC(*headers, header_t, sizeof(header_t))
+        *headers = (header_t *) malloc(sizeof(header_t));
         (*headers)->key = key;
         (*headers)->value = value;
     } else {
@@ -157,7 +159,7 @@ static void insert_headers(header_t **headers, char *key, char *value) {
 }
 
 static char *get_header_key(char *str) {
-    int ind;
+    int ind = 0;
     size_t size = strlen(str);
 
     for (int i = 0; i < strlen(str); ++i) {

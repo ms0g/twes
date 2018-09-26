@@ -3,14 +3,10 @@
 
 #define OUT(fd, opts) ((opts).daemonize ? (fd):stdout)
 
-#define ALLOC(buffer, type, size)               \
-if(((buffer) = (type *) malloc(size)) == NULL)  \
-    perror("unable to allocate memory");
-
 typedef enum time_type {
     GMT,
     CURRENT
-} type ;
+} type;
 
 
 /**

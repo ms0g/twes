@@ -84,7 +84,8 @@ options_t opts;
 
 http_request_t *request;
 FILE *logfd;
-int server_socket, client_socket;
+int server_socket;
+int client_socket;
 char *buf;
 
 int main(int argc, char *argv[]) {
@@ -136,7 +137,7 @@ int main(int argc, char *argv[]) {
     if (listen(server_socket, 10) == -1)
         error("Can't listen");
 
-    ALLOC(buf, char, BUFLEN * sizeof(char))
+    buf = (char *) calloc(BUFLEN, sizeof(char));
 
     while (1) {
         // wait for connection.If it happens,create a new socket and keep on communication over it
