@@ -21,7 +21,7 @@ static const char *status_list[] = {
         "500 Internal Server Error"
 };
 
-static const char *error_html = "<html><body><h1>%s</h1></body></html>";
+static const char *status_html = "<html><body><h1>%s</h1></body></html>";
 static const char *response_header = "%s %s\r\n"
                                      "Server: twes/"VERSION
                                      "\r\n"
@@ -57,7 +57,7 @@ http_request_t *init_http_request(char *buf, char *path) {
     // append the res at the end of the resource
     request->file.path = (char *) realloc(request->file.path,
                                           strlen(request->file.path) +
-                                          (strlen(res) != 0 ? strlen(res) : strlen(request->resource)) + 1);
+                                          (strlen(res) != 0 ? strlen(res) + 1 : strlen(request->resource)) + 1);
 
     strcat(request->file.path, strlen(res) != 0 ? &res[1] : &request->resource[1]);
 
@@ -79,7 +79,7 @@ void send_http_response(char *buf, int client_socket, http_request_t *request, c
 
     for (int i = 0; i < NUM_STATUS; ++i) {
         if (strcmp(status, status_codes[i]) == 0) {
-            sprintf(response_data, error_html, status_list[i]);
+            sprintf(response_data, status_html, status_list[i]);
             st = (char *) status_list[i];
             break;
         }
