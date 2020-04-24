@@ -1,7 +1,12 @@
 #include <stdio.h>
 #include <memory.h>
 #include <unistd.h>
-#include <malloc.h>
+#ifdef __linux__
+    #include <malloc.h>
+#elif __APPLE__
+    #include <stdlib.h>
+#endif
+
 #include "http.h"
 #include "utils.h"
 

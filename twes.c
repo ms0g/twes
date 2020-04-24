@@ -4,7 +4,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
-#include <wait.h>
+#ifdef __linux__
+    #include <wait.h>
+#elif __APPLE__
+    #include <sys/wait.h>
+#endif
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdio.h>
