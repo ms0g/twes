@@ -11,6 +11,7 @@
 #endif
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <signal.h>
 #include <stdio.h>
 #include <assert.h>
 #include "http.h"
