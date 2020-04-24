@@ -24,19 +24,19 @@ typedef struct {
 /**
  * Initialize the http request
  */
-http_request_t *init_http_request(char *, char *);
+http_request_t *init_http_request(char * buf, char *path);
 
 /**
  *
  * Clean the http request
  */
-void clean_http_request(http_request_t *);
+void clean_http_request(http_request_t *request);
 
 
 /**
  * Send the Http response
  */
-void send_http_response(char *, int, http_request_t *, char *);
+void send_http_response(char *buf, int client_socket, http_request_t *request, char *status);
 
 
 #endif //TWES_HTTP_H

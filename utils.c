@@ -30,7 +30,7 @@ char *get_mime_type(const char *filename) {
 }
 
 
-char *get_time(type t) {
+char *get_time(srv_time_t t) {
     struct tm *t_info;
     static char date[50];
 

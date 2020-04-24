@@ -99,7 +99,7 @@ strcmp(mime,"image/x-icon") == 0
 
     if (request->file.fd) {
         // clean the response buffer
-        bzero(response_data, sizeof(response_data));
+        bzero(response_data, 100);
         mime = get_mime_type(&request->file.path[1]);
 
         // get the file size
@@ -108,7 +108,7 @@ strcmp(mime,"image/x-icon") == 0
         fseek(request->file.fd, 0L, SEEK_SET);
         // reallocate the response buffer for the size of the file
         response_data = (char *) realloc(response_data, (size_t) len + 1);
-        if (!is_image(mime))
+        if (!(is_image(mime)))
             fread(response_data, 1, (size_t) len, request->file.fd);
     } else
         len = strlen(response_data);
