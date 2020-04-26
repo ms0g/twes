@@ -35,11 +35,11 @@ static const char *response_header = "%s %s\r\n"
                                      "Content-Type: %s\r\n\r\n";
 
 
-static void clean_http_headers(header_t **);
-static void insert_headers(header_t **, char *, char *);
-static void parse_headers(char *, http_request_t *);
-static char *get_header_key(char *);
-static void parse_request_line(char *, http_request_t *);
+static void clean_http_headers(header_t **headers);
+static void insert_headers(header_t **headers, char *key, char *value);
+static void parse_headers(char *buf, http_request_t *request);
+static char *get_header_key(char *str);
+static void parse_request_line(char *buf, http_request_t *request);
 
 
 http_request_t *init_http_request(char *buf, char *path) {

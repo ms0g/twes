@@ -19,13 +19,13 @@
 
 #define BUFLEN 1024
 
-static void error(char *) __attribute__ ((noreturn));
-static void harakiri(int) __attribute__ ((noreturn));
-static void read_in(int, char *);
+static void error(char *msg) __attribute__ ((noreturn));
+static void harakiri(int sig) __attribute__ ((noreturn));
+static void read_in(int client_socket, char *buf);
 static int open_socket(void);
-static void bind_to_port(int, int);
-static int catch_signal(int, void (*)(int));
-static char *get_status(http_request_t *);
+static void bind_to_port(int server_socket, int port);
+static int catch_signal(int sig, void (*handler)(int));
+static char *get_status(http_request_t *request);
 static void echo_usage(void) __attribute__ ((noreturn));
 static void init_daemonizing(void);
 
